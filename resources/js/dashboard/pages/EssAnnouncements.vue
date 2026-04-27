@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { computed, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -9,6 +9,8 @@ const state = reactive({
     loading: false,
     error: '',
     canManage: false,
+    q: '',
+    onlyPinned: false,
 });
 
 async function load() {
@@ -30,6 +32,19 @@ async function load() {
 }
 
 onMounted(load);
+
+const filteredRows = computed(() => {
+    const q = state.q.trim().toLowerCase();
+    return state.rows.filter((row) => {
+        if (state.onlyPinned && !row.is_pinned) {
+            return false;
+        }
+        if (!q) return true;
+        const title = String(row.title ?? '').toLowerCase();
+        const body = String(row.body ?? '').toLowerCase();
+        return title.includes(q) || body.includes(q);
+    });
+});
 </script>
 
 <template>
@@ -48,11 +63,24 @@ onMounted(load);
 
         <div v-if="state.error" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ state.error }}</div>
 
+        <div class="grid gap-3 sm:grid-cols-4">
+            <input
+                v-model.trim="state.q"
+                type="text"
+                placeholder="Search announcements..."
+                class="sm:col-span-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500"
+            >
+            <label class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-300">
+                <input v-model="state.onlyPinned" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-white/10 text-emerald-500">
+                Pinned only
+            </label>
+        </div>
+
         <div v-if="state.loading" class="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-16 text-center text-slate-500">Loading...</div>
 
-        <ul v-else-if="state.rows.length" class="space-y-3">
+        <ul v-else-if="filteredRows.length" class="space-y-3">
             <li
-                v-for="a in state.rows"
+                v-for="a in filteredRows"
                 :key="a.id"
                 class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
             >
@@ -63,6 +91,6 @@ onMounted(load);
             </li>
         </ul>
 
-        <p v-else class="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-12 text-center text-sm text-slate-500">No announcements right now.</p>
+        <p v-else class="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-12 text-center text-sm text-slate-500">No announcements match current filter.</p>
     </div>
 </template>

@@ -14,6 +14,8 @@ const state = reactive({
     saving: false,
     error: '',
     message: '',
+    filterStage: 'all',
+    search: '',
 });
 
 const form = reactive({
@@ -118,6 +120,29 @@ function formatInterviewWhen(iso) {
         return iso;
     }
 }
+
+const stageCounts = computed(() => {
+    const counts = Object.fromEntries(stages.map((s) => [s, 0]));
+    for (const row of state.applications) {
+        const s = row.stage;
+        if (s && counts[s] !== undefined) {
+            counts[s] += 1;
+        }
+    }
+    return counts;
+});
+
+const filteredApplications = computed(() => {
+    const q = state.search.trim().toLowerCase();
+    return state.applications.filter((row) => {
+        if (state.filterStage !== 'all' && row.stage !== state.filterStage) {
+            return false;
+        }
+        if (!q) return true;
+        const blob = [row.full_name, row.email, row.phone, row.notes].filter(Boolean).join(' ').toLowerCase();
+        return blob.includes(q);
+    });
+});
 </script>
 
 <template>
@@ -151,6 +176,37 @@ function formatInterviewWhen(iso) {
             </div>
         </form>
 
+        <section v-if="!state.loading && state.applications.length" class="space-y-3">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Pipeline snapshot</h3>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <button
+                    v-for="s in stages"
+                    :key="s"
+                    type="button"
+                    class="rounded-xl border px-3 py-3 text-left transition"
+                    :class="state.filterStage === s ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 bg-white/[0.03] hover:border-white/20'"
+                    @click="state.filterStage = state.filterStage === s ? 'all' : s"
+                >
+                    <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{{ s }}</p>
+                    <p class="mt-1 text-2xl font-semibold tabular-nums text-white">{{ stageCounts[s] ?? 0 }}</p>
+                    <p class="mt-1 text-[10px] text-slate-500">Click to filter</p>
+                </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <input
+                    v-model.trim="state.search"
+                    type="search"
+                    placeholder="Search name, email, phone, notes…"
+                    class="min-w-[12rem] flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500"
+                >
+                <select v-model="state.filterStage" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
+                    <option value="all">All stages</option>
+                    <option v-for="s in stages" :key="'opt-' + s" :value="s">{{ s }}</option>
+                </select>
+                <span class="text-xs text-slate-500">{{ filteredApplications.length }} shown</span>
+            </div>
+        </section>
+
         <div class="overflow-x-auto overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
             <table class="min-w-full divide-y divide-white/10 text-left text-sm">
                 <thead class="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
@@ -165,7 +221,8 @@ function formatInterviewWhen(iso) {
                 <tbody class="divide-y divide-white/5 text-slate-300">
                     <tr v-if="state.loading"><td colspan="5" class="px-4 py-10 text-center text-slate-500">Loading...</td></tr>
                     <tr v-else-if="!state.applications.length"><td colspan="5" class="px-4 py-10 text-center text-slate-500">No applications yet.</td></tr>
-                    <tr v-for="row in state.applications" :key="row.id">
+                    <tr v-else-if="!filteredApplications.length"><td colspan="5" class="px-4 py-10 text-center text-slate-500">No applications match filters.</td></tr>
+                    <tr v-for="row in filteredApplications" :key="row.id">
                         <td class="px-4 py-3 font-medium text-white">{{ row.full_name }}</td>
                         <td class="px-4 py-3 text-xs">
                             <div>{{ row.email }}</div>
