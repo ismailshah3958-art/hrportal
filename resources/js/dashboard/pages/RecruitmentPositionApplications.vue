@@ -6,6 +6,8 @@ const route = useRoute();
 const router = useRouter();
 
 const stages = ['applied', 'interview', 'offer', 'hired', 'rejected'];
+/** Matches DB: interviews.status default + comments in migration */
+const interviewStatuses = ['scheduled', 'completed', 'cancelled', 'no_show'];
 
 const state = reactive({
     position: null,
@@ -15,6 +17,7 @@ const state = reactive({
     error: '',
     message: '',
     filterStage: 'all',
+    filterInterview: 'all',
     search: '',
 });
 
@@ -121,6 +124,73 @@ function formatInterviewWhen(iso) {
     }
 }
 
+function interviewStatusLabel(s) {
+    if (s === 'no_show') {
+        return 'No show';
+    }
+    return s ? String(s).replaceAll('_', ' ') : '—';
+}
+
+function appInterviews(row) {
+    return row.interviews ?? [];
+}
+
+function countAppsNoInterviews() {
+    return state.applications.filter((row) => appInterviews(row).length === 0).length;
+}
+
+function countAppsWithInterviewStatus(status) {
+    return state.applications.filter((row) => appInterviews(row).some((iv) => iv.status === status)).length;
+}
+
+function matchesInterviewFilter(row) {
+    const f = state.filterInterview;
+    if (f === 'all') {
+        return true;
+    }
+    const ivs = appInterviews(row);
+    if (f === 'none') {
+        return ivs.length === 0;
+    }
+    return ivs.some((iv) => iv.status === f);
+}
+
+function escapeCsv(val) {
+    const s = val == null ? '' : String(val);
+    if (/[",\n\r]/.test(s)) {
+        return `"${s.replaceAll('"', '""')}"`;
+    }
+    return s;
+}
+
+function exportFilteredCsv() {
+    const posTitle = (state.position?.title || 'position').replaceAll(/[^\w\-]+/g, '_').slice(0, 60);
+    const headers = ['Candidate', 'Email', 'Phone', 'Stage', 'Notes', 'Interviews'];
+    const lines = [`\uFEFF${headers.join(',')}`];
+    for (const r of filteredApplications.value) {
+        const ivSummary = appInterviews(r)
+            .map((iv) => `${formatInterviewWhen(iv.scheduled_at)} (${iv.status})`)
+            .join(' | ');
+        const row = [
+            r.full_name,
+            r.email,
+            r.phone ?? '',
+            r.stage ?? '',
+            (r.notes ?? '').replaceAll(/\s+/g, ' ').trim(),
+            ivSummary,
+        ].map(escapeCsv);
+        lines.push(row.join(','));
+    }
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${posTitle}-applications.csv`;
+    a.rel = 'noopener';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 const stageCounts = computed(() => {
     const counts = Object.fromEntries(stages.map((s) => [s, 0]));
     for (const row of state.applications) {
@@ -136,6 +206,9 @@ const filteredApplications = computed(() => {
     const q = state.search.trim().toLowerCase();
     return state.applications.filter((row) => {
         if (state.filterStage !== 'all' && row.stage !== state.filterStage) {
+            return false;
+        }
+        if (!matchesInterviewFilter(row)) {
             return false;
         }
         if (!q) return true;
@@ -204,6 +277,58 @@ const filteredApplications = computed(() => {
                     <option v-for="s in stages" :key="'opt-' + s" :value="s">{{ s }}</option>
                 </select>
                 <span class="text-xs text-slate-500">{{ filteredApplications.length }} shown</span>
+                <button
+                    type="button"
+                    class="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/5"
+                    :disabled="!filteredApplications.length"
+                    @click="exportFilteredCsv"
+                >
+                    Export CSV
+                </button>
+            </div>
+
+            <div>
+                <h4 class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Interview status (candidates)</h4>
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        class="rounded-lg border px-2.5 py-1.5 text-xs transition"
+                        :class="state.filterInterview === 'all' ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+                        @click="state.filterInterview = 'all'"
+                    >
+                        Any · {{ state.applications.length }}
+                    </button>
+                    <button
+                        type="button"
+                        class="rounded-lg border px-2.5 py-1.5 text-xs transition"
+                        :class="state.filterInterview === 'none' ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+                        @click="state.filterInterview = state.filterInterview === 'none' ? 'all' : 'none'"
+                    >
+                        No interviews · {{ countAppsNoInterviews() }}
+                    </button>
+                    <button
+                        v-for="st in interviewStatuses"
+                        :key="'iv-' + st"
+                        type="button"
+                        class="rounded-lg border px-2.5 py-1.5 text-xs capitalize transition"
+                        :class="state.filterInterview === st ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+                        @click="state.filterInterview = state.filterInterview === st ? 'all' : st"
+                    >
+                        {{ interviewStatusLabel(st) }} · {{ countAppsWithInterviewStatus(st) }}
+                    </button>
+                </div>
+                <p class="mt-2 text-[10px] text-slate-600">Shows candidates with at least one interview in that status. Click again to clear.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[10px] uppercase tracking-wider text-slate-500">Or select</span>
+                <select v-model="state.filterInterview" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
+                    <option value="all">Any interview</option>
+                    <option value="none">No interviews scheduled</option>
+                    <option v-for="st in interviewStatuses" :key="'sel-' + st" :value="st">
+                        Has {{ interviewStatusLabel(st) }} · {{ countAppsWithInterviewStatus(st) }}
+                    </option>
+                </select>
             </div>
         </section>
 

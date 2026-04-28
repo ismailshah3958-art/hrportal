@@ -12,7 +12,7 @@ class CurrentUserController extends Controller
     {
         $user = $request->user()->load('employee');
 
-        $emp = $user->employee;
+        $emp = $user->employee?->loadMissing(['department:id,name', 'designation:id,name']);
 
         $isLeaveApprover = $user->can('hr.leave.manage')
             || ($emp && Employee::query()->where('manager_id', $emp->id)->exists());
@@ -27,6 +27,10 @@ class CurrentUserController extends Controller
                 'id' => $emp->id,
                 'full_name' => $emp->full_name,
                 'employee_code' => $emp->employee_code,
+                'profile_photo_url' => $emp->profilePhotoUrl(),
+                'department_name' => $emp->department?->name,
+                'designation_name' => $emp->designation?->name,
+                'date_of_birth' => $emp->date_of_birth?->toDateString(),
             ] : null,
             'flags' => [
                 'hr_dashboard' => $user->can('hr.dashboard.view'),

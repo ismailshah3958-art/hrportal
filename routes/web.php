@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\CurrentUserController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\DesignationController;
+use App\Http\Controllers\Api\EmployeeBirthdayTimelineController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\EmployeeDocumentController;
 use App\Http\Controllers\Api\LeaveRequestController;
@@ -35,6 +36,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('api')->group(function () {
         Route::get('/me', [CurrentUserController::class, 'show']);
+        Route::get('/company/birthdays-timeline', [EmployeeBirthdayTimelineController::class, 'index']);
         Route::get('/announcements/feed', [AnnouncementController::class, 'feed']);
         Route::get('/announcements', [AnnouncementController::class, 'index']);
         Route::post('/announcements', [AnnouncementController::class, 'store']);

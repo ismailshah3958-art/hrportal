@@ -19,8 +19,6 @@ import RecruitmentPositionApplications from './pages/RecruitmentPositionApplicat
 import RecruitmentPositionDetail from './pages/RecruitmentPositionDetail.vue';
 import RecruitmentPositionEdit from './pages/RecruitmentPositionEdit.vue';
 import AnnouncementsIndex from './pages/AnnouncementsIndex.vue';
-import EssAnnouncements from './pages/EssAnnouncements.vue';
-
 const router = createRouter({
     history: createWebHistory('/dashboard'),
     routes: [
@@ -41,7 +39,7 @@ const router = createRouter({
         { path: '/recruitment', name: 'recruitment.positions', component: RecruitmentPositions },
         { path: '/announcements', name: 'announcements.index', component: AnnouncementsIndex },
         { path: '/my/payslips', name: 'ess.my-payslips', component: MyPayslips },
-        { path: '/my/announcements', name: 'ess.my-announcements', component: EssAnnouncements },
+        { path: '/my/announcements', redirect: { name: 'dashboard.home' } },
         { path: '/reports', name: 'dashboard.reports', component: DashboardReports },
     ],
 });
