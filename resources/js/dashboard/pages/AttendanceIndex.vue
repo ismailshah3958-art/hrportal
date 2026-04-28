@@ -93,7 +93,7 @@ function initials(name) {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <h2 class="text-lg font-semibold text-white sm:text-xl">Attendance</h2>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

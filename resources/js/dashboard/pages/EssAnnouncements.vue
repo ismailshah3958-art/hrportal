@@ -99,7 +99,7 @@ function formatPublished(iso) {
 </script>
 
 <template>
-    <div class="mx-auto max-w-2xl space-y-8 pb-10">
+    <div class="mx-auto min-h-0 max-w-2xl flex-1 space-y-8 overflow-y-auto overscroll-contain pb-10">
         <!-- Cover strip (timeline feel) -->
         <section
             class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-violet-950/50 via-[#121820] to-[#0c1016] p-6 sm:p-8"

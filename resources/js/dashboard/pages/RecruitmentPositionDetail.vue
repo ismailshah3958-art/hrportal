@@ -31,7 +31,7 @@ onMounted(load);
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <button type="button" class="mb-2 text-xs text-emerald-400 hover:text-emerald-300" @click="router.push('/recruitment')">← Back to positions</button>

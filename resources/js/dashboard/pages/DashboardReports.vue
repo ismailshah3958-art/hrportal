@@ -132,7 +132,7 @@ onMounted(load);
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <div class="flex items-center justify-between gap-3">
                 <div>

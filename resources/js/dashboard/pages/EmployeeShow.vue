@@ -175,7 +175,7 @@ function initials(name) {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-lg font-semibold text-white sm:text-xl">Employee profile</h2>

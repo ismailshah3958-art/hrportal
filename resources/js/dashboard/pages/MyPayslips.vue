@@ -76,7 +76,7 @@ const totals = computed(() => {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <div>
             <h2 class="text-lg font-semibold text-white sm:text-xl">My payslips</h2>
             <p class="mt-1 text-sm text-slate-500">Monthly payroll lines available for your account.</p>

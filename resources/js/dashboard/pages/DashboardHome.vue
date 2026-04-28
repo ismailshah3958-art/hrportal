@@ -1,179 +1,206 @@
 <template>
-    <div :class="isHr ? 'space-y-8' : 'space-y-0'">
-        <!-- HR overview hero -->
-        <section
-            v-if="isHr"
-            class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-950/40 via-[#121820] to-[#0c1016] p-6 sm:p-8"
-        >
-            <div
-                class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl"
-            />
-            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-                <div
-                    v-if="me.employee"
-                    class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-xl font-semibold text-slate-200"
-                >
-                    <img
-                        v-if="me.employee.profile_photo_url"
-                        :src="me.employee.profile_photo_url"
-                        alt=""
-                        class="h-full w-full object-cover"
-                    >
-                    <span v-else>{{ initials(me.employee.full_name) }}</span>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-xs font-medium uppercase tracking-wider text-emerald-300/90">HR overview</p>
-                    <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                        <span v-if="state.loading">Loading…</span>
-                        <span v-else>{{ me.employee ? `Hi, ${me.employee.full_name}` : `Hi, ${me.user?.name ?? 'there'}` }}</span>
-                    </h2>
-                    <p v-if="me.employee && !state.loading" class="mt-2 text-sm leading-relaxed text-slate-400 sm:text-base">
-                        <span class="font-mono text-emerald-200/90">{{ me.employee.employee_code }}</span>
-                        <span v-if="me.employee.department_name || me.employee.designation_name" class="text-slate-500"> · </span>
-                        <span>{{ me.employee.designation_name || '—' }}</span>
-                        <span v-if="me.employee.department_name" class="text-slate-500"> · {{ me.employee.department_name }}</span>
-                    </p>
-                    <p v-else-if="!me.employee && !state.loading" class="mt-2 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">
-                        Company news and team birthdays appear below.
-                    </p>
-                </div>
-            </div>
-        </section>
-
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div
             v-if="state.birthdaysError"
-            class="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-100"
+            class="shrink-0 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-100"
         >
             {{ state.birthdaysError }}
         </div>
 
-        <div v-if="state.loading && isHr" class="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-8 text-center text-sm text-slate-500">
+        <div
+            v-if="state.loading && isHr"
+            class="min-h-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-8 text-center text-sm text-slate-500"
+        >
             Loading company timeline…
         </div>
-        <div v-if="state.loading && !isHr" class="flex min-h-[40vh] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] p-12 text-sm text-slate-500">
+        <div
+            v-if="state.loading && !isHr"
+            class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] p-12 text-sm text-slate-500"
+        >
             Loading your dashboard…
         </div>
 
-        <!-- HR: birthdays + feed + modules -->
+        <!-- HR: 3 columns — 25% / 50% / 25% (grid-cols-12: 3+6+3) -->
         <template v-if="!state.loading && isHr">
-            <div class="mx-auto max-w-3xl space-y-8">
-                <section v-if="todayBirthdays.length">
-                    <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-amber-400/90">
-                        <span aria-hidden="true">🎂</span> Today’s birthdays
-                    </h3>
-                    <ul class="space-y-3">
-                        <li v-for="b in todayBirthdays" :key="'t-' + b.employee_id">
-                            <BirthdayCard :row="b" />
-                        </li>
-                    </ul>
-                </section>
+            <p class="mb-4 shrink-0 text-sm text-slate-400">
+                <span v-if="me.employee">Hi, {{ me.employee.full_name }}</span>
+                <span v-else-if="me.user?.name">Hi, {{ me.user.name }}</span>
+                <span v-else>HR overview</span>
+            </p>
 
-                <section v-if="soonBirthdays.length">
-                    <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Next two weeks</h3>
-                    <ul class="space-y-3">
-                        <li v-for="b in soonBirthdays" :key="'s-' + b.employee_id">
-                            <BirthdayCard :row="b" />
-                        </li>
-                    </ul>
-                </section>
-
-                <section v-if="laterBirthdays.length">
-                    <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">Later (up to 90 days)</h3>
-                    <ul class="space-y-2">
-                        <li v-for="b in laterBirthdays" :key="'l-' + b.employee_id">
-                            <BirthdayCard :row="b" compact />
-                        </li>
-                    </ul>
-                </section>
-
-                <p v-if="!birthdays.length && !state.birthdaysError" class="text-center text-sm text-slate-500">
-                    No upcoming birthdays in the next 90 days (or dates missing in profiles).
-                </p>
-            </div>
-
-            <section v-if="feed.length" class="mt-8">
-                <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">Announcements</h3>
-                <ul class="mx-auto max-w-3xl space-y-3">
-                    <li
-                        v-for="a in feed"
-                        :key="a.id"
-                        class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+            <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto overscroll-contain lg:grid-cols-12 lg:overflow-hidden lg:pr-1">
+                <!-- Left 25%: intro, snapshot, modules -->
+                <div class="space-y-4 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
+                    <div
+                        class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-950/40 via-[#121820] to-[#0c1016] p-4 ring-1 ring-white/5"
                     >
-                        <p class="text-xs text-slate-500">{{ formatPublished(a.published_at) }}</p>
-                        <p class="mt-1 text-sm font-semibold text-white">
-                            <span v-if="a.is_pinned" class="mr-1 text-amber-400">*</span>{{ a.title }}
+                        <div
+                            class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500/20 blur-2xl"
+                        />
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/90">HR overview</p>
+                        <p v-if="me.employee" class="mt-2 text-xs text-slate-500">
+                            <span class="font-mono text-emerald-200/80">{{ me.employee.employee_code }}</span>
+                            <span v-if="me.employee.designation_name"> · {{ me.employee.designation_name }}</span>
                         </p>
-                        <p class="mt-2 text-sm leading-relaxed text-slate-400">{{ a.excerpt }}</p>
-                    </li>
-                </ul>
-            </section>
+                        <p v-else class="mt-2 text-xs text-slate-500">Company news and birthdays are in the center and right.</p>
+                    </div>
 
-            <div
-                v-if="state.hiddenMetrics.length"
-                class="mt-8 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-100"
-            >
-                Some dashboard metrics are hidden for your role: {{ state.hiddenMetrics.join(', ') }}.
-            </div>
-
-            <section class="mt-8">
-                <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">Snapshot</h3>
-                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <article
-                        v-for="card in stats"
-                        :key="card.title"
-                        class="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-emerald-500/30 hover:bg-white/[0.05]"
+                    <div
+                        v-if="state.hiddenMetrics.length"
+                        class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[10px] text-amber-100"
                     >
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="text-sm font-medium text-slate-400">{{ card.title }}</p>
-                                <p class="mt-2 text-3xl font-semibold tabular-nums text-white">{{ card.value }}</p>
-                            </div>
-                            <span
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 [&>svg]:block"
-                                v-html="card.icon"
-                            ></span>
+                        Some metrics hidden: {{ state.hiddenMetrics.join(', ') }}.
+                    </div>
+
+                    <section>
+                        <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Snapshot</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <article
+                                v-for="card in stats"
+                                :key="card.title"
+                                class="group rounded-xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-emerald-500/30"
+                            >
+                                <p class="text-[10px] font-medium text-slate-500">{{ card.title }}</p>
+                                <p class="mt-1 text-xl font-semibold tabular-nums text-white">{{ card.value }}</p>
+                                <span
+                                    class="mt-1 flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-400 [&>svg]:block"
+                                    v-html="card.icon"
+                                ></span>
+                            </article>
                         </div>
-                        <p class="mt-3 text-xs text-slate-500">{{ card.hint }}</p>
-                    </article>
-                </div>
-            </section>
+                    </section>
 
-            <section v-if="isHr">
-                <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">HR modules</h3>
-                <div class="grid gap-4 md:grid-cols-2">
-                    <button
-                        type="button"
-                        class="rounded-2xl border border-dashed border-emerald-500/30 bg-emerald-500/5 p-5 text-left text-sm text-slate-400 transition hover:border-emerald-500/50 hover:bg-emerald-500/10"
-                        @click="router.push('/employees')"
-                    >
-                        <p class="font-medium text-emerald-200/90">Employee &amp; org</p>
-                        <p class="mt-2 leading-relaxed">
-                            Employee list and create are live; departments and designations load from the database.
-                        </p>
-                        <span class="mt-3 inline-flex text-xs font-semibold text-emerald-400">Open employees →</span>
-                    </button>
-                    <button
-                        type="button"
-                        class="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-5 text-left text-sm text-slate-400 transition hover:border-emerald-500/30 hover:bg-white/[0.04]"
-                        @click="router.push('/attendance')"
-                    >
-                        <p class="font-medium text-slate-300">Attendance &amp; leave</p>
-                        <p class="mt-2 leading-relaxed">
-                            Open an employee to see their full month, day by day (add / edit / delete), plus leave workflow.
-                        </p>
-                        <span class="mt-3 inline-flex text-xs font-semibold text-emerald-400">Open attendance →</span>
-                    </button>
+                    <section>
+                        <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Quick links</h3>
+                        <div class="flex flex-col gap-2">
+                            <button
+                                type="button"
+                                class="w-full rounded-lg border border-dashed border-emerald-500/30 bg-emerald-500/5 px-3 py-2.5 text-left text-xs text-slate-300 transition hover:bg-emerald-500/10"
+                                @click="router.push('/employees')"
+                            >
+                                <span class="font-medium text-emerald-200">Employees</span>
+                                <span class="ml-1 text-slate-500">→</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="w-full rounded-lg border border-dashed border-white/15 bg-white/[0.02] px-3 py-2.5 text-left text-xs text-slate-300 transition hover:bg-white/[0.04]"
+                                @click="router.push('/attendance')"
+                            >
+                                <span class="font-medium text-slate-200">Attendance</span>
+                                <span class="ml-1 text-slate-500">→</span>
+                            </button>
+                        </div>
+                    </section>
                 </div>
-            </section>
+
+                <!-- Center 50%: announcements -->
+                <div class="space-y-3 lg:col-span-6 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
+                    <div class="flex items-end justify-between gap-2 border-b border-white/10 pb-2">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500">Announcements</h3>
+                        <RouterLink
+                            v-if="me.flags?.hr_announcements_manage"
+                            to="/announcements"
+                            class="text-xs font-medium text-emerald-400 hover:text-emerald-300"
+                        >Manage</RouterLink>
+                    </div>
+                    <p
+                        v-if="!feed.length"
+                        class="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-10 text-center text-sm text-slate-500"
+                    >
+                        No announcements yet.
+                    </p>
+                    <ul v-else class="space-y-3">
+                        <li
+                            v-for="a in feed"
+                            :key="a.id"
+                            class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] ring-1 ring-white/5"
+                        >
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-emerald-500/60 to-emerald-800/30"
+                                :class="a.is_pinned ? 'from-amber-500/80' : ''"
+                            />
+                            <div class="p-3 sm:p-4">
+                                <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
+                                <h4 class="mt-1 text-sm font-semibold text-white">
+                                    <span v-if="a.is_pinned" class="text-amber-400">* </span>{{ a.title }}
+                                </h4>
+                                <div
+                                    v-if="(a.body || '').length > 500"
+                                    class="mt-2 max-h-48 overflow-y-auto rounded-md border border-white/5 bg-black/20 p-2"
+                                >
+                                    <p class="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-300">{{ a.body }}</p>
+                                </div>
+                                <p
+                                    v-else
+                                    class="mt-2 whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-400"
+                                >{{ a.body }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right 25%: time, calendar, birthdays -->
+                <div class="space-y-4 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 ring-1 ring-white/5">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Local time</p>
+                        <p class="mt-1 text-2xl font-bold tabular-nums text-white">{{ essTime || '—' }}</p>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 ring-1 ring-white/5">
+                        <h3 class="text-sm font-semibold text-white">{{ calendarGrid.monthLabel }}</h3>
+                        <div class="mt-2 grid grid-cols-7 gap-0.5 text-center text-[8px] font-semibold text-slate-500">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+                        <div class="mt-0.5 space-y-0.5">
+                            <div v-for="(week, wi) in calendarGrid.weeks" :key="'hrw-' + wi" class="grid grid-cols-7 gap-0.5">
+                                <div
+                                    v-for="(cell, ci) in week"
+                                    :key="ci"
+                                    class="flex aspect-square min-h-0 items-center justify-center rounded text-[9px]"
+                                    :class="cell.day ? (cell.isToday ? 'bg-emerald-600 font-bold text-white' : 'bg-white/5 text-slate-300') : ''"
+                                >
+                                    {{ cell.day || '' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section v-if="todayBirthdays.length">
+                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400/90">Today</h3>
+                        <ul class="space-y-2">
+                            <li v-for="b in todayBirthdays" :key="'t-' + b.employee_id">
+                                <BirthdayCard :row="b" />
+                            </li>
+                        </ul>
+                    </section>
+                    <section v-if="soonBirthdays.length">
+                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Next 2 wks</h3>
+                        <ul class="space-y-2">
+                            <li v-for="b in soonBirthdays" :key="'s-' + b.employee_id">
+                                <BirthdayCard :row="b" />
+                            </li>
+                        </ul>
+                    </section>
+                    <section v-if="laterBirthdays.length">
+                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Later (90d)</h3>
+                        <ul class="space-y-1.5">
+                            <li v-for="b in laterBirthdays" :key="'l-' + b.employee_id">
+                                <BirthdayCard :row="b" compact />
+                            </li>
+                        </ul>
+                    </section>
+                    <p v-if="!birthdays.length && !state.birthdaysError" class="text-center text-xs text-slate-500">No birthday data.</p>
+                </div>
+            </div>
         </template>
 
-        <!-- Employee: full-width card grid (admin color theme) -->
+        <!-- Employee: fixed shell — scroll inside columns on lg, single column scroll on mobile -->
         <template v-else-if="!state.loading && !isHr">
-            <p class="mb-6 text-sm text-slate-400">Welcome back{{ me.employee ? `, ${me.employee.full_name}` : '' }}</p>
+            <p class="mb-4 shrink-0 text-sm text-slate-400">Welcome back{{ me.employee ? `, ${me.employee.full_name}` : '' }}</p>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto overscroll-contain lg:grid-cols-12 lg:overflow-hidden lg:pr-1">
                 <!-- Left 25%: profile, leave, shortcuts -->
-                <div class="space-y-6 lg:col-span-3 lg:min-w-0">
+                <div class="space-y-6 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
                     <!-- Profile card -->
                     <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 ring-1 ring-white/5">
                             <div class="flex items-start gap-4">
@@ -271,7 +298,7 @@
                 </div>
 
                 <!-- Center 50%: announcements -->
-                <div class="space-y-4 lg:col-span-6 lg:min-w-0">
+                <div class="space-y-4 lg:col-span-6 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
                     <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500">Announcements</h3>
                     <p
                         v-if="!feed.length"
@@ -295,7 +322,17 @@
                                     <p class="text-sm font-semibold text-white">HR Portal</p>
                                     <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
                                     <h4 class="mt-2 text-base font-semibold text-slate-100">{{ a.title }}</h4>
-                                    <p class="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-400">{{ a.excerpt || a.body }}</p>
+                                    <!-- Full `body` (API `excerpt` is truncated ~220 chars — don’t use it here) -->
+                                    <div
+                                        v-if="(a.body || '').length > 500"
+                                        class="mt-2 max-h-[min(70vh,36rem)] overflow-y-auto overscroll-contain rounded-lg border border-white/5 bg-black/15 p-3"
+                                    >
+                                        <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-400">{{ a.body }}</p>
+                                    </div>
+                                    <p
+                                        v-else
+                                        class="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-400"
+                                    >{{ a.body }}</p>
                                 </div>
                             </div>
                         </li>
@@ -303,7 +340,7 @@
                 </div>
 
                 <!-- Right 25% -->
-                <div class="space-y-5 lg:col-span-3 lg:min-w-0">
+                <div class="space-y-5 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
                     <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5 ring-1 ring-white/5">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Local time</p>
                         <p class="mt-1 text-3xl font-bold tabular-nums tracking-tight text-white">{{ essTime }}</p>
@@ -835,17 +872,15 @@ onMounted(async () => {
 
         await Promise.all(tasks);
 
-        if (!hr) {
-            const tick = () => {
-                essTime.value = new Date().toLocaleTimeString(undefined, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                });
-            };
-            tick();
-            essTimer = setInterval(tick, 1000);
-        }
+        const tick = () => {
+            essTime.value = new Date().toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            });
+        };
+        tick();
+        essTimer = setInterval(tick, 1000);
     } catch {
         /* ignore */
     } finally {
