@@ -1,0 +1,17 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-BQFE67OB.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/dashboard/main.js": {
+    "file": "assets/main-Dr_h-OZV.js",
+    "name": "main",
+    "src": "resources/js/dashboard/main.js",
+    "isEntry": true
+  }
+}
