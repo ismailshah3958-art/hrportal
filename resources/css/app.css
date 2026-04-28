@@ -11,16 +11,116 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-/* Native <select> lists (esp. Windows/Chrome): readable text in dark UI */
-#dashboard-app {
+/* Native <select> lists (esp. Windows/Chrome): readable in both themes */
+html.dark #dashboard-app,
+html.dark #dashboard-app select {
     color-scheme: dark;
 }
 
-#dashboard-app select {
-    color-scheme: dark;
+html:not(.dark) #dashboard-app,
+html:not(.dark) #dashboard-app select {
+    color-scheme: light;
 }
 
-#dashboard-app select option {
+html.dark #dashboard-app select option {
     background-color: rgb(15 23 42);
     color: rgb(248 250 252);
+}
+
+html:not(.dark) #dashboard-app select option {
+    background-color: rgb(255 255 255);
+    color: rgb(15 23 42);
+}
+
+/* Dashboard light-mode readability overrides for legacy dark utility classes */
+#dashboard-app .theme-light .text-slate-50,
+#dashboard-app .theme-light .text-slate-100,
+#dashboard-app .theme-light .text-slate-200 {
+    color: rgb(15 23 42) !important;
+}
+
+#dashboard-app .theme-light .text-slate-300,
+#dashboard-app .theme-light .text-slate-400 {
+    color: rgb(51 65 85) !important;
+}
+
+#dashboard-app .theme-light .text-slate-500 {
+    color: rgb(71 85 105) !important;
+}
+
+#dashboard-app .theme-light .border-white\/10,
+#dashboard-app .theme-light .border-white\/15,
+#dashboard-app .theme-light .border-white\/20 {
+    border-color: rgb(203 213 225) !important;
+}
+
+#dashboard-app .theme-light .bg-white\/5,
+#dashboard-app .theme-light .bg-white\/10 {
+    background-color: rgb(241 245 249) !important;
+}
+
+/* Light mode: remove green accents, keep grayscale only */
+#dashboard-app .theme-light [class*='bg-emerald'] {
+    background-color: rgb(15 23 42) !important;
+    color: rgb(255 255 255) !important;
+}
+
+#dashboard-app .theme-light [class*='text-emerald'] {
+    color: rgb(15 23 42) !important;
+}
+
+#dashboard-app .theme-light [class*='bg-emerald'] [class*='text-emerald'],
+#dashboard-app .theme-light [class*='bg-emerald'] .text-slate-900,
+#dashboard-app .theme-light [class*='bg-emerald'] .text-slate-800,
+#dashboard-app .theme-light [class*='bg-emerald'] .text-slate-700,
+#dashboard-app .theme-light [class*='bg-emerald'] .text-slate-600 {
+    color: rgb(255 255 255) !important;
+}
+
+/* Keep text visible on intentionally dark grayscale surfaces */
+#dashboard-app .theme-light [class*='bg-slate-9'],
+#dashboard-app .theme-light [class*='bg-slate-8'],
+#dashboard-app .theme-light [class*='bg-black'] {
+    color: rgb(255 255 255) !important;
+}
+
+#dashboard-app .theme-light [class*='bg-slate-9'] .text-slate-900,
+#dashboard-app .theme-light [class*='bg-slate-8'] .text-slate-900,
+#dashboard-app .theme-light [class*='bg-black'] .text-slate-900,
+#dashboard-app .theme-light [class*='bg-slate-9'] .text-slate-800,
+#dashboard-app .theme-light [class*='bg-slate-8'] .text-slate-800,
+#dashboard-app .theme-light [class*='bg-black'] .text-slate-800,
+#dashboard-app .theme-light [class*='bg-slate-9'] .text-slate-700,
+#dashboard-app .theme-light [class*='bg-slate-8'] .text-slate-700,
+#dashboard-app .theme-light [class*='bg-black'] .text-slate-700 {
+    color: rgb(255 255 255) !important;
+}
+
+#dashboard-app .theme-light [class*='border-emerald'] {
+    border-color: rgb(15 23 42 / 0.25) !important;
+}
+
+#dashboard-app .theme-light [class*='ring-emerald'] {
+    --tw-ring-color: rgb(15 23 42 / 0.25) !important;
+}
+
+#dashboard-app .theme-light [class*='focus:ring-emerald'] {
+    --tw-ring-color: rgb(15 23 42 / 0.25) !important;
+}
+
+#dashboard-app .theme-light [class*='focus:border-emerald'] {
+    border-color: rgb(15 23 42 / 0.25) !important;
+}
+
+#dashboard-app .theme-light [class*='shadow-emerald'] {
+    --tw-shadow-color: rgb(15 23 42 / 0.2) !important;
+}
+
+#dashboard-app .theme-light [class*='hover:bg-emerald']:hover {
+    background-color: rgb(30 41 59) !important;
+    color: rgb(255 255 255) !important;
+}
+
+#dashboard-app .theme-light [class*='hover:text-emerald']:hover {
+    color: rgb(15 23 42) !important;
 }

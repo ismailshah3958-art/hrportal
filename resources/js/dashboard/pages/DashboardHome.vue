@@ -42,7 +42,7 @@
                             <span class="font-mono text-emerald-200/80">{{ me.employee.employee_code }}</span>
                             <span v-if="me.employee.designation_name"> · {{ me.employee.designation_name }}</span>
                         </p>
-                        <p v-else class="mt-2 text-xs text-slate-500">Company news and birthdays are in the center and right.</p>
+                        <p v-else class="mt-2 text-xs text-white/90">Company news and birthdays are in the center and right.</p>
                     </div>
 
                     <div
