@@ -119,22 +119,17 @@
                                 class="h-1 w-full bg-gradient-to-r from-emerald-500/60 to-emerald-800/30"
                                 :class="a.is_pinned ? 'from-amber-500/80' : ''"
                             />
-                            <div class="p-3 sm:p-4">
+                            <button
+                                type="button"
+                                class="block w-full p-3 text-left transition hover:bg-white/[0.02] sm:p-4"
+                                @click="openAnnouncement(a)"
+                            >
                                 <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
                                 <h4 class="mt-1 text-sm font-semibold text-white">
                                     <span v-if="a.is_pinned" class="text-amber-400">* </span>{{ a.title }}
                                 </h4>
-                                <div
-                                    v-if="(a.body || '').length > 500"
-                                    class="mt-2 max-h-48 overflow-y-auto rounded-md border border-white/5 bg-black/20 p-2"
-                                >
-                                    <p class="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-300">{{ a.body }}</p>
-                                </div>
-                                <p
-                                    v-else
-                                    class="mt-2 whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-400"
-                                >{{ a.body }}</p>
-                            </div>
+                                <p class="mt-2 truncate text-xs leading-relaxed text-slate-400">{{ oneLineAnnouncement(a) }}</p>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -316,25 +311,19 @@
                                 class="h-1 w-full bg-gradient-to-r from-emerald-500/60 to-emerald-800/30"
                                 :class="a.is_pinned ? 'from-amber-500/80' : ''"
                             />
-                            <div class="flex gap-4 p-4 sm:p-5">
+                            <button
+                                type="button"
+                                class="flex w-full gap-4 p-4 text-left transition hover:bg-white/[0.02] sm:p-5"
+                                @click="openAnnouncement(a)"
+                            >
                                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xs font-bold text-slate-400">HR</div>
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-white">HR Portal</p>
                                     <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
                                     <h4 class="mt-2 text-base font-semibold text-slate-100">{{ a.title }}</h4>
-                                    <!-- Full `body` (API `excerpt` is truncated ~220 chars — don’t use it here) -->
-                                    <div
-                                        v-if="(a.body || '').length > 500"
-                                        class="mt-2 max-h-[min(70vh,36rem)] overflow-y-auto overscroll-contain rounded-lg border border-white/5 bg-black/15 p-3"
-                                    >
-                                        <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-400">{{ a.body }}</p>
-                                    </div>
-                                    <p
-                                        v-else
-                                        class="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-400"
-                                    >{{ a.body }}</p>
+                                    <p class="mt-2 truncate text-sm leading-relaxed text-slate-400">{{ oneLineAnnouncement(a) }}</p>
                                 </div>
-                            </div>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -448,6 +437,35 @@
                 </div>
             </div>
         </template>
+
+        <div
+            v-if="announcementModal.open"
+            class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4"
+            @click.self="closeAnnouncement"
+        >
+            <div class="w-full max-w-3xl rounded-2xl border border-white/10 bg-[#0f1419] shadow-2xl">
+                <div class="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
+                    <div class="min-w-0">
+                        <p class="text-[11px] text-slate-500">{{ formatPublished(announcementModal.item?.published_at) }}</p>
+                        <h3 class="mt-1 truncate text-base font-semibold text-white">
+                            {{ announcementModal.item?.title || 'Announcement' }}
+                        </h3>
+                    </div>
+                    <button
+                        type="button"
+                        class="rounded-md border border-white/10 px-2 py-1 text-xs text-slate-300 hover:bg-white/5"
+                        @click="closeAnnouncement"
+                    >
+                        Close
+                    </button>
+                </div>
+                <div class="max-h-[70vh] overflow-y-auto px-4 py-4 sm:px-5">
+                    <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-300">
+                        {{ announcementModal.item?.body || announcementModal.item?.excerpt || 'No details available.' }}
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -561,6 +579,10 @@ const payBarHeights = computed(() => {
 });
 
 const upcomingBirthdaysSidebar = computed(() => birthdays.slice(0, 8));
+const announcementModal = reactive({
+    open: false,
+    item: null,
+});
 
 function formatLeaveRange(row) {
     if (!row?.start_date || !row?.end_date) {
@@ -629,6 +651,21 @@ function formatPublished(iso) {
     } catch {
         return '';
     }
+}
+
+function oneLineAnnouncement(row) {
+    const text = String(row?.body || row?.excerpt || '').replace(/\s+/g, ' ').trim();
+    return text || 'No details.';
+}
+
+function openAnnouncement(row) {
+    announcementModal.item = row ?? null;
+    announcementModal.open = !!row;
+}
+
+function closeAnnouncement() {
+    announcementModal.open = false;
+    announcementModal.item = null;
 }
 
 function formatMoney(v) {
@@ -715,6 +752,7 @@ async function fetchOnLeaveToday() {
         return r.status === 'pending' && start <= today && today <= end;
     }).length;
 }
+
 
 const stats = computed(() => [
     {
@@ -869,6 +907,7 @@ onMounted(async () => {
         if (!hr && me.flags?.ess_leave_apply && me.employee) {
             tasks.push(fetchMyLeave());
         }
+
 
         await Promise.all(tasks);
 

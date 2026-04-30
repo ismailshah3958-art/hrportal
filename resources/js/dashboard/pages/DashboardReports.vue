@@ -121,6 +121,7 @@ async function load() {
                 ? fmtMonth(latest.period_year, latest.period_month)
                 : '—';
         }
+
     } catch (e) {
         state.error = e?.response?.data?.message ?? 'Could not load report metrics.';
     } finally {

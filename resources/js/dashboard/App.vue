@@ -42,7 +42,7 @@ const adminSidebarLinks = computed(() => {
     if (session.flags.hr_dashboard || session.flags.hr_employees_manage) {
         list.push({ to: '/employees', label: 'Employees' });
     }
-    if (session.flags.hr_dashboard || session.flags.hr_attendance_manage) {
+    if (session.flags.hr_dashboard) {
         list.push({ to: '/attendance', label: 'Attendance' });
     }
     if (session.flags.hr_payroll_manage) {
