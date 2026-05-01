@@ -8,10 +8,13 @@ use App\Http\Resources\Payroll\PayrollRunResource;
 use App\Models\Employee;
 use App\Models\PayrollItem;
 use App\Models\PayrollRun;
+use App\Models\User;
+use App\Notifications\ActivityNotification;
 use App\Services\Payroll\PayrollAttendanceAttachment;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PayrollRunController extends Controller
@@ -101,6 +104,17 @@ class PayrollRunController extends Controller
             $this->recalculateItem($item, $attendance);
         }
 
+        $actorId = $request->user()?->id;
+        $recipients = User::query()->role(['admin', 'hr'])->get()->reject(fn ($u) => (int) $u->id === (int) $actorId);
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Payroll run generated',
+                'body' => sprintf('Payroll draft generated for %d-%02d.', (int) $run->period_year, (int) $run->period_month),
+                'link' => '/payroll',
+                'meta' => ['payroll_run_id' => $run->id],
+            ]));
+        }
+
         return response()->json([
             'message' => 'Payroll run generated.',
             'run' => (new PayrollRunResource($run->fresh()->loadCount('items')))->resolve(),
@@ -171,6 +185,29 @@ class PayrollRunController extends Controller
         $payrollRun->processed_by_user_id = $request->user()->id;
         $payrollRun->processed_at = now();
         $payrollRun->save();
+
+        $items = PayrollItem::query()
+            ->where('payroll_run_id', $payrollRun->id)
+            ->with('employee:id,user_id,full_name')
+            ->get();
+        $employeeUsers = collect();
+        foreach ($items as $item) {
+            if ($item->employee?->user_id) {
+                $u = User::query()->find($item->employee->user_id);
+                if ($u) {
+                    $employeeUsers->push($u);
+                }
+            }
+        }
+        $employeeUsers = $employeeUsers->unique('id')->values();
+        if ($employeeUsers->isNotEmpty()) {
+            Notification::send($employeeUsers, new ActivityNotification([
+                'title' => 'Payslip ready',
+                'body' => sprintf('Your payslip for %d-%02d is now available.', (int) $payrollRun->period_year, (int) $payrollRun->period_month),
+                'link' => '/my/payslips',
+                'meta' => ['payroll_run_id' => $payrollRun->id],
+            ]));
+        }
 
         return response()->json([
             'message' => 'Payroll run finalized.',

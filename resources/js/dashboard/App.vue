@@ -1,12 +1,14 @@
 ﻿<script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 const route = useRoute();
+const router = useRouter();
 const clockText = ref('');
 const isDarkMode = ref(true);
 const THEME_STORAGE_KEY = 'hrportal-dashboard-theme';
+const companyLogo = '/logo-maestrotech.svg';
 
 const session = reactive({ loaded: false, flags: {}, employee: null, userName: '' });
 
@@ -76,15 +78,6 @@ const topNavLinks = computed(() =>
     session.flags.hr_dashboard ? adminSidebarLinks.value : employeeTopLinks.value
 );
 
-const avatarInitials = computed(() => {
-    const n = session.employee?.full_name || session.userName || 'U';
-    const p = String(n).trim().split(/\s+/).filter(Boolean);
-    if (p.length >= 2) {
-        return (p[0][0] + p[1][0]).toUpperCase();
-    }
-    return String(n).slice(0, 2).toUpperCase();
-});
-
 const shellClass = computed(() =>
     isDarkMode.value ? 'bg-[#0f1419] text-slate-200' : 'bg-slate-100 text-slate-900'
 );
@@ -94,22 +87,14 @@ const headerClass = computed(() =>
     isDarkMode.value ? 'border-b border-white/10 bg-[#0f1419]' : 'border-b border-slate-200 bg-white'
 );
 
-const avatarClass = computed(() =>
-    isDarkMode.value
-        ? 'border border-white/10 bg-white/5 text-slate-200'
-        : 'border border-slate-200 bg-slate-100 text-slate-700'
-);
-
 const navLinkClass = computed(() =>
     isDarkMode.value ? 'text-slate-300 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-100'
 );
 
 const activeNavLinkClass = computed(() =>
-    isDarkMode.value ? 'bg-emerald-600/20 text-emerald-300' : 'bg-slate-900 text-white'
+    isDarkMode.value ? 'bg-[rgb(249_184_79_/0.18)] text-amber-200' : 'bg-slate-900 text-white'
 );
 
-const brandClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-slate-900'));
-const subtitleClass = computed(() => (isDarkMode.value ? 'text-slate-500' : 'text-slate-500'));
 const clockClass = computed(() => (isDarkMode.value ? 'text-slate-400' : 'text-slate-500'));
 
 const buttonClass = computed(() =>
@@ -122,6 +107,13 @@ const mobileClockBarClass = computed(() =>
     isDarkMode.value ? 'border-b border-white/10 bg-[#0c1016]' : 'border-b border-slate-200 bg-slate-50'
 );
 
+const notificationState = reactive({
+    open: false,
+    loading: false,
+    unreadCount: 0,
+    rows: [],
+});
+
 function applyTheme() {
     localStorage.setItem(THEME_STORAGE_KEY, isDarkMode.value ? 'dark' : 'light');
     document.documentElement.classList.toggle('dark', isDarkMode.value);
@@ -133,6 +125,8 @@ function toggleTheme() {
 }
 
 let clockTimer = null;
+let notificationsTimer = null;
+let previousRootFontSize = '';
 
 function isActive(path) {
     if (path === '/') return route.path === '/';
@@ -147,21 +141,72 @@ function tickClock() {
     });
 }
 
-const pageTitle = computed(() => {
-    if (route.path.startsWith('/employees')) return 'Employees';
-    if (route.path.startsWith('/attendance')) return 'Attendance';
-    if (route.path.startsWith('/payroll')) return 'Payroll';
-    if (route.path.startsWith('/recruitment')) return 'Recruitment';
-    if (route.path.startsWith('/announcements')) return 'Post announcements';
-    if (route.path === '/my/announcements') return 'Home';
-    if (route.path === '/') return session.flags?.hr_dashboard ? 'Overview' : 'Home';
-    if (route.path === '/my/attendance') return 'My attendance';
-    if (route.path === '/my/leave') return 'My leave';
-    if (route.path === '/my/payslips') return 'My payslips';
-    if (route.path === '/leave-approvals') return 'Leave approvals';
-    if (route.path.startsWith('/reports')) return 'Reports';
-    return 'Overview';
-});
+function applyResponsiveRootScale() {
+    const w = window.innerWidth || 0;
+    let size = 16;
+    if (w >= 1900) {
+        size = 20;
+    } else if (w >= 1600) {
+        size = 19;
+    } else if (w >= 1366) {
+        size = 18;
+    } else if (w >= 1200) {
+        size = 17;
+    }
+    document.documentElement.style.fontSize = `${size}px`;
+}
+
+async function fetchNotifications() {
+    notificationState.loading = true;
+    try {
+        const { data } = await window.axios.get('/api/notifications');
+        notificationState.unreadCount = Number(data?.unread_count ?? 0);
+        notificationState.rows = data?.data ?? [];
+    } catch {
+        notificationState.rows = [];
+    } finally {
+        notificationState.loading = false;
+    }
+}
+
+function formatNotificationTime(iso) {
+    if (!iso) return '';
+    try {
+        return new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+    } catch {
+        return '';
+    }
+}
+
+async function markNotificationRead(id) {
+    try {
+        await window.axios.post(`/api/notifications/${id}/read`);
+        const row = notificationState.rows.find((r) => r.id === id);
+        if (row && !row.read_at) {
+            row.read_at = new Date().toISOString();
+            notificationState.unreadCount = Math.max(0, notificationState.unreadCount - 1);
+        }
+    } catch {
+        /* noop */
+    }
+}
+
+async function onNotificationClick(n) {
+    if (!n.read_at) {
+        await markNotificationRead(n.id);
+    }
+    notificationState.open = false;
+    if (n.link) {
+        router.push(n.link);
+    }
+}
+
+async function toggleNotifications() {
+    notificationState.open = !notificationState.open;
+    if (notificationState.open) {
+        await fetchNotifications();
+    }
+}
 
 onMounted(async () => {
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -173,6 +218,9 @@ onMounted(async () => {
         isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     applyTheme();
+    previousRootFontSize = document.documentElement.style.fontSize || '';
+    applyResponsiveRootScale();
+    window.addEventListener('resize', applyResponsiveRootScale);
 
     try {
         const { data } = await window.axios.get('/api/me');
@@ -184,20 +232,34 @@ onMounted(async () => {
     } finally {
         session.loaded = true;
     }
+    await fetchNotifications();
     tickClock();
     clockTimer = setInterval(tickClock, 1000);
+    notificationsTimer = setInterval(fetchNotifications, 30000);
 });
+
+watch(
+    () => route.fullPath,
+    () => {
+        notificationState.open = false;
+    }
+);
 
 onUnmounted(() => {
     if (clockTimer) {
         clearInterval(clockTimer);
     }
+    if (notificationsTimer) {
+        clearInterval(notificationsTimer);
+    }
+    window.removeEventListener('resize', applyResponsiveRootScale);
+    document.documentElement.style.fontSize = previousRootFontSize;
 });
 </script>
 
 <template>
     <div
-        :class="[themeClass, shellClass, useFixedShell ? 'flex h-dvh max-h-dvh flex-col overflow-hidden' : 'min-h-screen']"
+        :class="['dashboard-adaptive', themeClass, shellClass, useFixedShell ? 'flex h-dvh max-h-dvh flex-col overflow-hidden' : 'min-h-screen']"
     >
         <div v-if="!session.loaded" class="px-4 py-8 text-center text-sm text-slate-500">Loading…</div>
 
@@ -206,19 +268,19 @@ onUnmounted(() => {
             <header class="z-50 shrink-0" :class="headerClass">
                 <div class="flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-6">
                     <div class="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold sm:h-10 sm:w-10" :class="avatarClass">
+                        <RouterLink
+                            to="/"
+                            class="flex shrink-0 items-center outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-amber-400/80"
+                            :class="isDarkMode ? 'ring-offset-[#0f1419]' : 'ring-offset-white'"
+                            aria-label="Home"
+                        >
                             <img
-                                v-if="session.employee?.profile_photo_url"
-                                :src="session.employee.profile_photo_url"
-                                alt=""
-                                class="h-full w-full object-cover"
+                                :src="companyLogo"
+                                alt="MaestroTech"
+                                class="h-8 w-auto shrink-0 sm:h-10"
+                                :class="isDarkMode ? 'brightness-0 invert' : ''"
                             >
-                            <span v-else>{{ avatarInitials }}</span>
-                        </div>
-                        <div class="hidden min-w-0 sm:block">
-                            <span class="text-sm font-semibold tracking-tight sm:text-base" :class="brandClass">HR Portal</span>
-                            <p v-if="session.flags.hr_dashboard" class="text-[10px]" :class="subtitleClass">{{ pageTitle }}</p>
-                        </div>
+                        </RouterLink>
                         <nav class="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex">
                             <RouterLink
                                 v-for="l in topNavLinks"
@@ -232,6 +294,57 @@ onUnmounted(() => {
                         </nav>
                     </div>
                     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                        <div class="relative">
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border text-slate-600 transition hover:scale-[1.02]"
+                                :class="isDarkMode ? 'border-white/10 text-slate-300 hover:bg-white/5' : 'border-slate-300 text-slate-700 hover:bg-slate-100'"
+                                title="Notifications"
+                                aria-label="Notifications"
+                                @click="toggleNotifications"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2.25a6 6 0 0 0-6 6v3.764c0 .577-.174 1.14-.5 1.616l-1.27 1.857A1.125 1.125 0 0 0 5.157 17.25h13.686a1.125 1.125 0 0 0 .927-1.763l-1.27-1.857a2.875 2.875 0 0 1-.5-1.616V8.25a6 6 0 0 0-6-6ZM8.25 18.75a3.75 3.75 0 0 0 7.5 0h-7.5Z" />
+                                </svg>
+                            </button>
+                            <span
+                                v-if="notificationState.unreadCount > 0"
+                                class="absolute -right-1 -top-1 inline-flex min-w-[1rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white"
+                            >
+                                {{ notificationState.unreadCount > 99 ? '99+' : notificationState.unreadCount }}
+                            </span>
+
+                            <div
+                                v-if="notificationState.open"
+                                class="absolute right-0 z-[80] mt-2 w-80 overflow-hidden rounded-xl border border-white/10 bg-[#121820] shadow-2xl"
+                            >
+                                <div class="flex items-center justify-between border-b border-white/10 px-3 py-2">
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Notifications</p>
+                                    <span class="text-[10px] text-slate-500">Unread: {{ notificationState.unreadCount }}</span>
+                                </div>
+                                <div v-if="notificationState.loading" class="px-3 py-4 text-xs text-slate-500">Loading…</div>
+                                <ul v-else-if="notificationState.rows.length" class="max-h-80 overflow-y-auto">
+                                    <li
+                                        v-for="n in notificationState.rows"
+                                        :key="n.id"
+                                        class="border-b border-white/5 last:border-b-0"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="w-full px-3 py-2 text-left transition hover:bg-white/[0.03]"
+                                            :class="n.read_at ? 'opacity-75' : ''"
+                                            @click="onNotificationClick(n)"
+                                        >
+                                            <p class="text-xs font-medium" :class="n.read_at ? 'text-slate-300' : 'text-white'">{{ n.title }}</p>
+                                            <p class="mt-0.5 line-clamp-2 text-[11px] text-slate-400">{{ n.body }}</p>
+                                            <p class="mt-1 text-[10px] text-slate-500">{{ formatNotificationTime(n.created_at) }}</p>
+                                        </button>
+                                    </li>
+                                </ul>
+                                <div v-else class="px-3 py-4 text-xs text-slate-500">No notifications.</div>
+                            </div>
+                        </div>
+
                         <button
                             type="button"
                             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border text-slate-600 transition hover:scale-[1.02]"

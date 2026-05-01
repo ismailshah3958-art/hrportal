@@ -11,6 +11,11 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+#dashboard-app {
+    --brand-accent: #f9b84f;
+    --brand-accent-rgb: 249 184 79;
+}
+
 /* Native <select> lists (esp. Windows/Chrome): readable in both themes */
 html.dark #dashboard-app,
 html.dark #dashboard-app select {
@@ -123,4 +128,184 @@ html:not(.dark) #dashboard-app select option {
 
 #dashboard-app .theme-light [class*='hover:text-emerald']:hover {
     color: rgb(15 23 42) !important;
+}
+
+/* Brand color remap: emerald -> #f9b84f across dashboard */
+#dashboard-app [class*='text-emerald'] {
+    color: rgb(var(--brand-accent-rgb)) !important;
+}
+
+#dashboard-app [class*='bg-emerald-500\\/5'] { background-color: rgb(15 23 42 / 0.05) !important; }
+#dashboard-app [class*='bg-emerald-500\\/10'] { background-color: rgb(15 23 42 / 0.10) !important; }
+#dashboard-app [class*='bg-emerald-500\\/15'] { background-color: rgb(15 23 42 / 0.15) !important; }
+#dashboard-app [class*='bg-emerald-500\\/20'] { background-color: rgb(15 23 42 / 0.20) !important; }
+#dashboard-app [class*='bg-emerald-500\\/25'] { background-color: rgb(15 23 42 / 0.25) !important; }
+#dashboard-app [class*='bg-emerald-500\\/30'] { background-color: rgb(15 23 42 / 0.30) !important; }
+#dashboard-app [class*='bg-emerald-500\\/60'] { background-color: rgb(15 23 42 / 0.60) !important; }
+#dashboard-app [class*='bg-emerald-500\\/70'] { background-color: rgb(15 23 42 / 0.70) !important; }
+#dashboard-app [class*='bg-emerald-500\\/80'] { background-color: rgb(15 23 42 / 0.80) !important; }
+#dashboard-app [class*='bg-emerald-600\\/20'] { background-color: rgb(15 23 42 / 0.20) !important; }
+#dashboard-app [class*='bg-emerald-600\\/25'] { background-color: rgb(15 23 42 / 0.25) !important; }
+#dashboard-app [class*='bg-emerald-600\\/40'] { background-color: rgb(15 23 42 / 0.40) !important; }
+#dashboard-app [class*='bg-emerald-600\\/80'] { background-color: rgb(15 23 42 / 0.80) !important; }
+
+#dashboard-app [class*='border-emerald'] {
+    border-color: rgb(var(--brand-accent-rgb) / 0.45) !important;
+}
+
+#dashboard-app [class*='ring-emerald'] {
+    --tw-ring-color: rgb(var(--brand-accent-rgb) / 0.35) !important;
+}
+
+#dashboard-app [class*='focus:ring-emerald'] {
+    --tw-ring-color: rgb(var(--brand-accent-rgb) / 0.35) !important;
+}
+
+#dashboard-app [class*='focus:border-emerald'] {
+    border-color: rgb(var(--brand-accent-rgb) / 0.45) !important;
+}
+
+#dashboard-app [class*='shadow-emerald'] {
+    --tw-shadow-color: rgb(var(--brand-accent-rgb) / 0.28) !important;
+}
+
+#dashboard-app [class*='from-emerald'] {
+    --tw-gradient-from: rgb(15 23 42) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+#dashboard-app [class*='to-emerald'] {
+    --tw-gradient-to: rgb(15 23 42) var(--tw-gradient-to-position) !important;
+}
+
+#dashboard-app [class*='via-emerald'] {
+    --tw-gradient-stops: var(--tw-gradient-from), rgb(15 23 42) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+
+#dashboard-app [class*='stroke-emerald'] {
+    stroke: rgb(var(--brand-accent-rgb)) !important;
+}
+
+#dashboard-app [class*='fill-emerald'] {
+    fill: rgb(var(--brand-accent-rgb)) !important;
+}
+
+#dashboard-app [class*='hover:bg-emerald-500\\/10']:hover { background-color: rgb(15 23 42 / 0.10) !important; }
+#dashboard-app [class*='hover:bg-emerald-500\\/20']:hover { background-color: rgb(15 23 42 / 0.20) !important; }
+#dashboard-app [class*='hover:bg-emerald-500\\/25']:hover { background-color: rgb(15 23 42 / 0.25) !important; }
+#dashboard-app [class*='hover:bg-emerald-500']:hover,
+#dashboard-app [class*='hover:bg-emerald-600']:hover,
+#dashboard-app [class*='hover:bg-emerald']:hover {
+    background-color: rgb(15 23 42) !important;
+}
+
+/* If a component uses both emerald bg + emerald text, keep readable contrast */
+#dashboard-app [class*='bg-emerald'][class*='text-emerald'] {
+    color: rgb(15 23 42) !important;
+}
+
+#dashboard-app [class*='hover:text-emerald']:hover {
+    color: rgb(var(--brand-accent-rgb)) !important;
+}
+
+/* Large-screen adaptive scaling so dashboard stays proportional on 1080p/2K */
+@media (min-width: 1600px) {
+    #dashboard-app .dashboard-adaptive {
+        --dash-scale: 1.22;
+    }
+}
+
+@media (min-width: 1900px) {
+    #dashboard-app .dashboard-adaptive {
+        --dash-scale: 1.35;
+    }
+}
+
+#dashboard-app .dashboard-adaptive {
+    --dash-scale: 1;
+}
+
+#dashboard-app .dashboard-adaptive .text-\[8px\] {
+    font-size: calc(0.5rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-\[9px\] {
+    font-size: calc(0.5625rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-\[10px\] {
+    font-size: calc(0.625rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-\[11px\] {
+    font-size: calc(0.6875rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-xs {
+    font-size: calc(0.75rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-sm {
+    font-size: calc(0.875rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-base {
+    font-size: calc(1rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-lg {
+    font-size: calc(1.125rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-xl {
+    font-size: calc(1.25rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .text-2xl {
+    font-size: calc(1.5rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .p-2 {
+    padding: calc(0.5rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .p-3 {
+    padding: calc(0.75rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .p-4 {
+    padding: calc(1rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .px-3 {
+    padding-left: calc(0.75rem * var(--dash-scale)) !important;
+    padding-right: calc(0.75rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .px-4 {
+    padding-left: calc(1rem * var(--dash-scale)) !important;
+    padding-right: calc(1rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .py-2 {
+    padding-top: calc(0.5rem * var(--dash-scale)) !important;
+    padding-bottom: calc(0.5rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .py-3 {
+    padding-top: calc(0.75rem * var(--dash-scale)) !important;
+    padding-bottom: calc(0.75rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .rounded-lg {
+    border-radius: calc(0.5rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .rounded-xl {
+    border-radius: calc(0.75rem * var(--dash-scale)) !important;
+}
+
+#dashboard-app .dashboard-adaptive .rounded-2xl {
+    border-radius: calc(1rem * var(--dash-scale)) !important;
 }

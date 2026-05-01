@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnnouncementResource;
 use App\Models\Announcement;
+use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Notification;
 
 class AnnouncementController extends Controller
 {
@@ -66,6 +69,16 @@ class AnnouncementController extends Controller
 
         $row = Announcement::query()->create($data);
 
+        $recipients = User::query()->whereKeyNot($request->user()->id)->get();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'New announcement',
+                'body' => $row->title,
+                'link' => '/',
+                'meta' => ['announcement_id' => $row->id],
+            ]));
+        }
+
         return response()->json([
             'message' => 'Announcement saved.',
             'data' => (new AnnouncementResource($row))->resolve(),
@@ -78,6 +91,16 @@ class AnnouncementController extends Controller
 
         $announcement->update($this->validated($request, partial: true));
 
+        $recipients = User::query()->whereKeyNot($request->user()->id)->get();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Announcement updated',
+                'body' => $announcement->title,
+                'link' => '/',
+                'meta' => ['announcement_id' => $announcement->id],
+            ]));
+        }
+
         return response()->json([
             'message' => 'Announcement updated.',
             'data' => (new AnnouncementResource($announcement->fresh()))->resolve(),
@@ -87,7 +110,17 @@ class AnnouncementController extends Controller
     public function destroy(Request $request, Announcement $announcement): Response
     {
         abort_unless($request->user()?->can('hr.announcements.manage'), 403);
+        $title = $announcement->title;
         $announcement->delete();
+
+        $recipients = User::query()->whereKeyNot($request->user()->id)->get();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Announcement removed',
+                'body' => $title,
+                'link' => '/',
+            ]));
+        }
 
         return response()->noContent();
     }

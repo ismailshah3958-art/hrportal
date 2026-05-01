@@ -439,6 +439,35 @@ function initials(name) {
                 </dl>
             </section>
 
+            <!-- Bank -->
+            <section class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+                <h3 class="border-b border-white/10 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Bank details
+                </h3>
+                <dl class="grid gap-5 p-6 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Bank name</dt>
+                        <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.bank_name) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Branch</dt>
+                        <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.bank_branch) }}</dd>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Account title</dt>
+                        <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.bank_account_title) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Account number</dt>
+                        <dd class="mt-1 font-mono text-sm text-slate-300">{{ display(state.row.bank_account_number) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">IBAN</dt>
+                        <dd class="mt-1 font-mono text-sm text-slate-300">{{ display(state.row.bank_iban) }}</dd>
+                    </div>
+                </dl>
+            </section>
+
             <!-- Contact & documents -->
             <section class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
                 <h3 class="border-b border-white/10 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -450,8 +479,16 @@ function initials(name) {
                         <dd class="mt-1 break-all text-sm text-slate-300">{{ display(state.row.work_email) }}</dd>
                     </div>
                     <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Personal email</dt>
+                        <dd class="mt-1 break-all text-sm text-slate-300">{{ display(state.row.personal_email) }}</dd>
+                    </div>
+                    <div>
                         <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</dt>
                         <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.phone) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">WhatsApp</dt>
+                        <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.whatsapp_phone) }}</dd>
                     </div>
                     <div class="sm:col-span-2">
                         <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">CNIC</dt>
@@ -502,6 +539,10 @@ function initials(name) {
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Emergency contact phone</dt>
                         <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.emergency_contact_phone) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Relation</dt>
+                        <dd class="mt-1 text-sm text-slate-300">{{ display(state.row.emergency_contact_relation) }}</dd>
                     </div>
                 </dl>
             </section>

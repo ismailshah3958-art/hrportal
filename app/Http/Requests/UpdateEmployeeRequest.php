@@ -22,6 +22,12 @@ class UpdateEmployeeRequest extends FormRequest
                 $this->merge([$key => null]);
             }
         }
+
+        foreach (['bank_iban', 'cnic'] as $key) {
+            if ($this->has($key) && is_string($this->input($key))) {
+                $this->merge([$key => preg_replace('/\s+/', '', trim($this->input($key)))]);
+            }
+        }
     }
 
     /**
@@ -35,18 +41,26 @@ class UpdateEmployeeRequest extends FormRequest
         return [
             'employee_code' => ['required', 'string', 'max:50', Rule::unique('employees', 'employee_code')->ignore($employee->id)],
             'full_name' => ['required', 'string', 'max:255'],
-            'work_email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:40'],
-            'cnic' => ['nullable', 'string', 'max:30'],
-            'date_of_birth' => ['nullable', 'date'],
+            'work_email' => ['required', 'email', 'max:255'],
+            'personal_email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['required', 'string', 'max:40'],
+            'whatsapp_phone' => ['required', 'string', 'max:40'],
+            'cnic' => ['required', 'string', 'max:30'],
+            'date_of_birth' => ['required', 'date'],
             'gender' => ['nullable', 'string', 'max:20'],
-            'address_line1' => ['nullable', 'string', 'max:255'],
+            'address_line1' => ['required', 'string', 'max:255'],
             'address_line2' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:120'],
             'country' => ['nullable', 'string', 'max:120'],
             'postal_code' => ['nullable', 'string', 'max:30'],
-            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
-            'emergency_contact_phone' => ['nullable', 'string', 'max:40'],
+            'emergency_contact_name' => ['required', 'string', 'max:255'],
+            'emergency_contact_phone' => ['required', 'string', 'max:40'],
+            'emergency_contact_relation' => ['required', 'string', 'max:120'],
+            'bank_name' => ['required', 'string', 'max:191'],
+            'bank_branch' => ['required', 'string', 'max:191'],
+            'bank_account_title' => ['required', 'string', 'max:255'],
+            'bank_account_number' => ['required', 'string', 'max:64'],
+            'bank_iban' => ['required', 'string', 'max:34'],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'designation_id' => ['nullable', 'integer', 'exists:designations,id'],
             'manager_id' => ['nullable', 'integer', 'exists:employees,id', Rule::notIn([$employee->id])],

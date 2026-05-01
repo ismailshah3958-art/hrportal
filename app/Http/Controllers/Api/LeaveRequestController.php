@@ -7,6 +7,7 @@ use App\Http\Requests\StoreLeaveRequestRequest;
 use App\Http\Resources\LeaveRequestResource;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
+use App\Notifications\ActivityNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -71,6 +72,15 @@ class LeaveRequestController extends Controller
             'manager_id' => $employee->manager_id,
         ]);
 
+        if ($request->user()) {
+            $request->user()->notify(new ActivityNotification([
+                'title' => 'Leave request submitted',
+                'body' => 'Your leave request has been submitted and is waiting for approval.',
+                'link' => '/my/leave',
+                'meta' => ['leave_request_id' => $row->id],
+            ]));
+        }
+
         return (new LeaveRequestResource(
             $row->load('leaveType')
         ))->response()->setStatusCode(201);
@@ -91,6 +101,17 @@ class LeaveRequestController extends Controller
             'approved_by_user_id' => $request->user()->id,
             'approved_at' => now(),
         ]);
+
+        $leaveRequest->loadMissing('employee.user', 'leaveType');
+        $employeeUser = $leaveRequest->employee?->user;
+        if ($employeeUser) {
+            $employeeUser->notify(new ActivityNotification([
+                'title' => 'Leave approved',
+                'body' => ($leaveRequest->leaveType?->name ?? 'Leave').' request was approved.',
+                'link' => '/my/leave',
+                'meta' => ['leave_request_id' => $leaveRequest->id],
+            ]));
+        }
 
         return new LeaveRequestResource($leaveRequest->fresh()->load(['employee', 'leaveType']));
     }
@@ -115,6 +136,17 @@ class LeaveRequestController extends Controller
             'approved_at' => now(),
             'hr_notes' => $validated['hr_notes'] ?? null,
         ]);
+
+        $leaveRequest->loadMissing('employee.user', 'leaveType');
+        $employeeUser = $leaveRequest->employee?->user;
+        if ($employeeUser) {
+            $employeeUser->notify(new ActivityNotification([
+                'title' => 'Leave rejected',
+                'body' => ($leaveRequest->leaveType?->name ?? 'Leave').' request was rejected. Please review notes.',
+                'link' => '/my/leave',
+                'meta' => ['leave_request_id' => $leaveRequest->id],
+            ]));
+        }
 
         return new LeaveRequestResource($leaveRequest->fresh()->load(['employee', 'leaveType']));
     }

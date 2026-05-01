@@ -18,7 +18,7 @@ class LeaveTypeController extends Controller
         $rows = LeaveType::query()
             ->where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'code', 'is_paid', 'requires_approval']);
+            ->get(['id', 'name', 'code', 'default_days_per_year', 'is_paid', 'requires_approval']);
 
         return response()->json(['data' => $rows]);
     }

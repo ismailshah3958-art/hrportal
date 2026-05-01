@@ -39,6 +39,31 @@ const monthLabel = computed(() => {
     const [y, m] = monthYm.value.split('-').map(Number);
     return new Date(y, m - 1, 1).toLocaleString(undefined, { month: 'long', year: 'numeric' });
 });
+const leaveTypeCards = computed(() => {
+    const requested = ['annual', 'casual', 'sick', 'medical'];
+    const allTypes = state.types ?? [];
+    const rows = state.list ?? [];
+
+    return requested.map((key) => {
+        const matched = allTypes.find((t) => {
+            const name = String(t.name || '').toLowerCase();
+            const code = String(t.code || '').toLowerCase();
+            return name.includes(key) || code.includes(key);
+        });
+
+        const typeId = Number(matched?.id ?? 0);
+        const entitlement = Number(matched?.default_days_per_year ?? 0);
+        const used = rows
+            .filter((r) => Number(r.leave_type_id) === typeId && String(r.status || '').toLowerCase() === 'approved')
+            .reduce((sum, r) => sum + Number(r.total_days || 0), 0);
+
+        return {
+            id: matched?.id ?? `virtual-${key}`,
+            name: matched?.name ?? `${key.charAt(0).toUpperCase()}${key.slice(1)} leave`,
+            balance: Math.max(0, entitlement - used),
+        };
+    });
+});
 
 async function loadSession() {
     const { data } = await window.axios.get('/api/me');
@@ -147,6 +172,22 @@ async function submit() {
             </div>
 
             <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                <h3 class="text-sm font-semibold text-white">Leave types</h3>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <article
+                        v-for="t in leaveTypeCards"
+                        :key="t.id"
+                        class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
+                    >
+                        <p class="text-sm font-medium text-slate-200">{{ t.name }}</p>
+                        <p class="mt-1 text-xs text-slate-500">
+                            Balance: <span class="font-semibold text-white tabular-nums">{{ t.balance }}</span>
+                        </p>
+                    </article>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                 <h3 class="text-sm font-semibold text-white">New request</h3>
                 <p class="mt-1 text-xs text-slate-500">Default dates use the first day of the selected month.</p>
                 <div class="mt-4 flex flex-wrap items-end gap-3">
@@ -191,7 +232,7 @@ async function submit() {
                 <ul v-if="state.list.length" class="divide-y divide-white/5 text-sm text-slate-300">
                     <li v-for="r in state.list" :key="r.id" class="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
                         <span>{{ r.leave_type?.name ?? 'Leave' }}</span>
-                        <span class="font-mono text-xs text-slate-500">{{ r.start_date }} ? {{ r.end_date }}</span>
+                        <span class="font-mono text-xs text-slate-500">{{ r.start_date }} → {{ r.end_date }}</span>
                         <span class="rounded-md border border-white/10 px-2 py-0.5 text-xs capitalize">{{ r.status }}</span>
                     </li>
                 </ul>

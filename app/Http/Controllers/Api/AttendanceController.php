@@ -8,10 +8,14 @@ use App\Http\Requests\UpdateAttendanceRequest;
 use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\User;
+use App\Notifications\ActivityNotification;
 use App\Services\Attendance\AttendanceShiftRuleService;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class AttendanceController extends Controller
@@ -61,6 +65,60 @@ class AttendanceController extends Controller
         ]);
     }
 
+    /**
+     * Dashboard spotlight: best attendance + users needing attention.
+     */
+    public function spotlight(Request $request)
+    {
+        abort_unless($request->user()?->can('hr.dashboard.view'), 403);
+
+        $month = $request->string('month')->trim()->toString();
+        if (! preg_match('/^\d{4}-\d{2}$/', $month)) {
+            $month = now()->format('Y-m');
+        }
+
+        $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        $summaryRows = Attendance::query()
+            ->selectRaw('employee_id')
+            ->selectRaw('COUNT(*) as attendance_days')
+            ->selectRaw('SUM(CASE WHEN COALESCE(late_minutes, 0) > 0 OR COALESCE(late_incident, 0) = 1 THEN 1 ELSE 0 END) as late_days')
+            ->selectRaw("SUM(CASE WHEN status = 'on_leave' THEN 1 ELSE 0 END) as leave_days")
+            ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
+            ->groupBy('employee_id')
+            ->having('attendance_days', '>=', 3)
+            ->get();
+
+        if ($summaryRows->isEmpty()) {
+            return response()->json([
+                'month' => $month,
+                'best' => [],
+                'needs_attention' => [],
+            ]);
+        }
+
+        $employeeIds = $summaryRows->pluck('employee_id')->all();
+        $employees = Employee::query()
+            ->whereIn('id', $employeeIds)
+            ->where('status', 'active')
+            ->get()
+            ->keyBy('id');
+
+        $rows = $summaryRows
+            ->filter(fn ($r) => $employees->has((int) $r->employee_id))
+            ->values();
+
+        $best = $this->buildBestAttendance($rows, $employees);
+        $needsAttention = $this->buildNeedsAttention($rows, $employees);
+
+        return response()->json([
+            'month' => $month,
+            'best' => $best,
+            'needs_attention' => $needsAttention,
+        ]);
+    }
+
     public function store(StoreAttendanceRequest $request)
     {
         $data = $request->validated();
@@ -80,6 +138,22 @@ class AttendanceController extends Controller
                 ]);
             }
             throw $e;
+        }
+
+        $attendance->loadMissing('employee.user');
+        $actorId = $request->user()?->id;
+        $recipients = User::query()->role(['admin', 'hr'])->get()->reject(fn ($u) => (int) $u->id === (int) $actorId);
+        if ($attendance->employee?->user_id) {
+            $recipients->push($attendance->employee->user);
+        }
+        $recipients = $recipients->unique('id')->values();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Attendance added',
+                'body' => ($attendance->employee?->full_name ?? 'Employee').' attendance added for '.$attendance->attendance_date?->format('Y-m-d').'.',
+                'link' => '/attendance/'.($attendance->employee_id ?? ''),
+                'meta' => ['attendance_id' => $attendance->id],
+            ]));
         }
 
         return (new AttendanceResource(
@@ -113,6 +187,22 @@ class AttendanceController extends Controller
 
         $attendance->update($data);
 
+        $attendance->loadMissing('employee.user');
+        $actorId = $request->user()?->id;
+        $recipients = User::query()->role(['admin', 'hr'])->get()->reject(fn ($u) => (int) $u->id === (int) $actorId);
+        if ($attendance->employee?->user_id) {
+            $recipients->push($attendance->employee->user);
+        }
+        $recipients = $recipients->unique('id')->values();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Attendance updated',
+                'body' => ($attendance->employee?->full_name ?? 'Employee').' attendance updated for '.$attendance->attendance_date?->format('Y-m-d').'.',
+                'link' => '/attendance/'.($attendance->employee_id ?? ''),
+                'meta' => ['attendance_id' => $attendance->id],
+            ]));
+        }
+
         return new AttendanceResource($attendance->fresh()->load('employee'));
     }
 
@@ -120,7 +210,25 @@ class AttendanceController extends Controller
     {
         abort_unless($request->user()?->can('hr.attendance.manage'), 403);
 
+        $attendance->loadMissing('employee.user');
+        $employeeName = $attendance->employee?->full_name ?? 'Employee';
+        $employeeId = $attendance->employee_id;
+        $date = $attendance->attendance_date?->format('Y-m-d');
         $attendance->delete();
+
+        $actorId = $request->user()?->id;
+        $recipients = User::query()->role(['admin', 'hr'])->get()->reject(fn ($u) => (int) $u->id === (int) $actorId);
+        if ($attendance->employee?->user_id) {
+            $recipients->push($attendance->employee->user);
+        }
+        $recipients = $recipients->unique('id')->values();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Attendance deleted',
+                'body' => $employeeName.' attendance deleted for '.$date.'.',
+                'link' => '/attendance/'.$employeeId,
+            ]));
+        }
 
         return response()->json(null, 204);
     }
@@ -149,5 +257,58 @@ class AttendanceController extends Controller
         if (array_key_exists('check_in_at', $data) || array_key_exists('check_out_at', $data)) {
             $data['work_minutes'] = null;
         }
+    }
+
+    private function buildBestAttendance(Collection $rows, Collection $employees): array
+    {
+        return $rows
+            ->sortBy([
+                fn ($r) => (int) $r->late_days,
+                fn ($r) => (int) $r->leave_days,
+                fn ($r) => -1 * (int) $r->attendance_days,
+            ])
+            ->take(5)
+            ->map(function ($r) use ($employees) {
+                $emp = $employees->get((int) $r->employee_id);
+
+                return [
+                    'employee_id' => $emp->id,
+                    'employee_code' => $emp->employee_code,
+                    'full_name' => $emp->full_name,
+                    'profile_photo_url' => $emp->profilePhotoUrl(),
+                    'attendance_days' => (int) $r->attendance_days,
+                    'late_days' => (int) $r->late_days,
+                    'leave_days' => (int) $r->leave_days,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function buildNeedsAttention(Collection $rows, Collection $employees): array
+    {
+        return $rows
+            ->sortByDesc(function ($r) {
+                $late = (int) $r->late_days;
+                $leave = (int) $r->leave_days;
+
+                return ($late * 2) + $leave;
+            })
+            ->take(5)
+            ->map(function ($r) use ($employees) {
+                $emp = $employees->get((int) $r->employee_id);
+
+                return [
+                    'employee_id' => $emp->id,
+                    'employee_code' => $emp->employee_code,
+                    'full_name' => $emp->full_name,
+                    'profile_photo_url' => $emp->profilePhotoUrl(),
+                    'attendance_days' => (int) $r->attendance_days,
+                    'late_days' => (int) $r->late_days,
+                    'leave_days' => (int) $r->leave_days,
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

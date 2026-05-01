@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/attendances', [AttendanceController::class, 'store']);
         Route::put('/attendances/{attendance}', [AttendanceController::class, 'update']);
         Route::delete('/attendances/{attendance}', [AttendanceController::class, 'destroy']);
+        Route::get('/attendances/spotlight', [AttendanceController::class, 'spotlight']);
 
         Route::post('/zkteco/sync-attendance', [ZktecoController::class, 'sync']);
 

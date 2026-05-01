@@ -12,7 +12,9 @@ const form = reactive({
     zk_badge_user_id: '',
     full_name: '',
     work_email: '',
+    personal_email: '',
     phone: '',
+    whatsapp_phone: '',
     cnic: '',
     date_of_birth: '',
     gender: '',
@@ -22,6 +24,12 @@ const form = reactive({
     postal_code: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
+    emergency_contact_relation: '',
+    bank_name: '',
+    bank_branch: '',
+    bank_account_title: '',
+    bank_account_number: '',
+    bank_iban: '',
     department_id: '',
     designation_id: '',
     manager_id: '',
@@ -108,23 +116,35 @@ function appendFormData(fd, key, value) {
     fd.append(key, value);
 }
 
+function appendAlways(fd, key, value) {
+    fd.append(key, value === null || value === undefined ? '' : String(value));
+}
+
 function buildFormData() {
     const fd = new FormData();
     fd.append('employee_code', form.employee_code);
     fd.append('full_name', form.full_name);
     fd.append('status', form.status);
     fd.append('employment_type', form.employment_type);
-    appendFormData(fd, 'work_email', form.work_email);
-    appendFormData(fd, 'phone', form.phone);
-    appendFormData(fd, 'cnic', form.cnic);
-    appendFormData(fd, 'date_of_birth', form.date_of_birth);
+    appendAlways(fd, 'work_email', form.work_email);
+    appendFormData(fd, 'personal_email', form.personal_email);
+    appendAlways(fd, 'phone', form.phone);
+    appendAlways(fd, 'whatsapp_phone', form.whatsapp_phone);
+    appendAlways(fd, 'cnic', form.cnic);
+    appendAlways(fd, 'date_of_birth', form.date_of_birth);
     appendFormData(fd, 'gender', form.gender);
-    appendFormData(fd, 'address_line1', form.address_line1);
+    appendAlways(fd, 'address_line1', form.address_line1);
     appendFormData(fd, 'city', form.city);
     appendFormData(fd, 'country', form.country);
     appendFormData(fd, 'postal_code', form.postal_code);
-    appendFormData(fd, 'emergency_contact_name', form.emergency_contact_name);
-    appendFormData(fd, 'emergency_contact_phone', form.emergency_contact_phone);
+    appendAlways(fd, 'emergency_contact_name', form.emergency_contact_name);
+    appendAlways(fd, 'emergency_contact_phone', form.emergency_contact_phone);
+    appendAlways(fd, 'emergency_contact_relation', form.emergency_contact_relation);
+    appendAlways(fd, 'bank_name', form.bank_name);
+    appendAlways(fd, 'bank_branch', form.bank_branch);
+    appendAlways(fd, 'bank_account_title', form.bank_account_title);
+    appendAlways(fd, 'bank_account_number', form.bank_account_number);
+    appendAlways(fd, 'bank_iban', form.bank_iban);
     appendFormData(fd, 'joining_date', form.joining_date);
     appendFormData(fd, 'salary', form.salary);
     appendFormData(fd, 'notes', form.notes);
@@ -169,7 +189,7 @@ async function submit() {
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-lg font-semibold text-white sm:text-xl">Add employee</h2>
-                <p class="mt-1 text-sm text-slate-500">Fill required fields; you can update the rest later.</p>
+                <p class="mt-1 text-sm text-slate-500">Contact, emergency, and bank details are required (same as the information form).</p>
             </div>
             <button
                 type="button"
@@ -219,7 +239,7 @@ async function submit() {
                         <p v-if="fieldError('zk_badge_user_id')" class="mt-1 text-xs text-red-300">{{ fieldError('zk_badge_user_id') }}</p>
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Full name *</label>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Full name (as per CNIC) *</label>
                         <input
                             v-model="form.full_name"
                             required
@@ -341,6 +361,205 @@ async function submit() {
             </section>
 
             <section class="space-y-4">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Contact &amp; CNIC (required)</h3>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Work email *</label>
+                        <input
+                            v-model="form.work_email"
+                            type="email"
+                            required
+                            autocomplete="email"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="company email"
+                        >
+                        <p v-if="fieldError('work_email')" class="mt-1 text-xs text-red-300">{{ fieldError('work_email') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Personal email</label>
+                        <input
+                            v-model="form.personal_email"
+                            type="email"
+                            autocomplete="email"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="Gmail / Yahoo / Hotmail (optional)"
+                        >
+                        <p v-if="fieldError('personal_email')" class="mt-1 text-xs text-red-300">{{ fieldError('personal_email') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">CNIC # *</label>
+                        <input
+                            v-model="form.cnic"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="e.g. 35202-1234567-1"
+                        >
+                        <p v-if="fieldError('cnic')" class="mt-1 text-xs text-red-300">{{ fieldError('cnic') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Date of birth *</label>
+                        <input
+                            v-model="form.date_of_birth"
+                            type="date"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('date_of_birth')" class="mt-1 text-xs text-red-300">{{ fieldError('date_of_birth') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Contact number *</label>
+                        <input
+                            v-model="form.phone"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="Mobile"
+                        >
+                        <p v-if="fieldError('phone')" class="mt-1 text-xs text-red-300">{{ fieldError('phone') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">WhatsApp number *</label>
+                        <input
+                            v-model="form.whatsapp_phone"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="Same or different number"
+                        >
+                        <p v-if="fieldError('whatsapp_phone')" class="mt-1 text-xs text-red-300">{{ fieldError('whatsapp_phone') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Gender</label>
+                        <select
+                            v-model="form.gender"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                            <option value="">—</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Address &amp; emergency (required)</h3>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Current resident address *</label>
+                        <input
+                            v-model="form.address_line1"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('address_line1')" class="mt-1 text-xs text-red-300">{{ fieldError('address_line1') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">City</label>
+                        <input
+                            v-model="form.city"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Country</label>
+                        <input
+                            v-model="form.country"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Emergency contact number *</label>
+                        <input
+                            v-model="form.emergency_contact_phone"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('emergency_contact_phone')" class="mt-1 text-xs text-red-300">{{ fieldError('emergency_contact_phone') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Emergency contact person name *</label>
+                        <input
+                            v-model="form.emergency_contact_name"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('emergency_contact_name')" class="mt-1 text-xs text-red-300">{{ fieldError('emergency_contact_name') }}</p>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Relation to emergency contact *</label>
+                        <input
+                            v-model="form.emergency_contact_relation"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="e.g. Father, spouse"
+                        >
+                        <p v-if="fieldError('emergency_contact_relation')" class="mt-1 text-xs text-red-300">{{ fieldError('emergency_contact_relation') }}</p>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Notes</label>
+                        <textarea
+                            v-model="form.notes"
+                            rows="3"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Bank details (required)</h3>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Bank name *</label>
+                        <input
+                            v-model="form.bank_name"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('bank_name')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_name') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Branch *</label>
+                        <input
+                            v-model="form.bank_branch"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('bank_branch')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_branch') }}</p>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Account title *</label>
+                        <input
+                            v-model="form.bank_account_title"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('bank_account_title')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_account_title') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Account number *</label>
+                        <input
+                            v-model="form.bank_account_number"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                        <p v-if="fieldError('bank_account_number')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_account_number') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-slate-300">IBAN # *</label>
+                        <input
+                            v-model="form.bank_iban"
+                            required
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-mono text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="PK…"
+                            autocapitalize="characters"
+                        >
+                        <p v-if="fieldError('bank_iban')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_iban') }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
                 <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Dashboard login (optional)</h3>
                 <p class="text-xs text-slate-500">
                     Create a user account so this employee can sign in with email and password. Role controls what they can access.
@@ -392,104 +611,6 @@ async function submit() {
                             <option value="admin">Admin (full access)</option>
                         </select>
                         <p v-if="fieldError('portal_role')" class="mt-1 text-xs text-red-300">{{ fieldError('portal_role') }}</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="space-y-4">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Contact &amp; CNIC</h3>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Work email</label>
-                        <input
-                            v-model="form.work_email"
-                            type="email"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                        <p v-if="fieldError('work_email')" class="mt-1 text-xs text-red-300">{{ fieldError('work_email') }}</p>
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Phone</label>
-                        <input
-                            v-model="form.phone"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">CNIC</label>
-                        <input
-                            v-model="form.cnic"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Date of birth</label>
-                        <input
-                            v-model="form.date_of_birth"
-                            type="date"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Gender</label>
-                        <select
-                            v-model="form.gender"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                            <option value="">—</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="space-y-4">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Address &amp; emergency</h3>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="sm:col-span-2">
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Address line 1</label>
-                        <input
-                            v-model="form.address_line1"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">City</label>
-                        <input
-                            v-model="form.city"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Country</label>
-                        <input
-                            v-model="form.country"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Emergency name</label>
-                        <input
-                            v-model="form.emergency_contact_name"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Emergency phone</label>
-                        <input
-                            v-model="form.emergency_contact_phone"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        >
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="mb-1.5 block text-sm font-medium text-slate-300">Notes</label>
-                        <textarea
-                            v-model="form.notes"
-                            rows="3"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                        />
                     </div>
                 </div>
             </section>

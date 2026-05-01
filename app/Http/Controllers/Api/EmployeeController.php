@@ -8,9 +8,11 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
@@ -107,6 +109,24 @@ class EmployeeController extends Controller
             $employee->update(['profile_photo_path' => $path]);
         }
 
+        $actorId = $request->user()?->id;
+        $recipients = User::query()->role(['admin', 'hr'])->get()->reject(fn ($u) => (int) $u->id === (int) $actorId);
+        if ($employee->user_id) {
+            $linked = User::query()->find($employee->user_id);
+            if ($linked) {
+                $recipients->push($linked);
+            }
+        }
+        $recipients = $recipients->unique('id')->values();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Employee added',
+                'body' => $employee->full_name.' was added to the employee directory.',
+                'link' => '/employees/'.$employee->id,
+                'meta' => ['employee_id' => $employee->id],
+            ]));
+        }
+
         return (new EmployeeResource(
             $employee->fresh()->load(['department', 'designation', 'manager'])
         ))->response()->setStatusCode(201);
@@ -125,6 +145,24 @@ class EmployeeController extends Controller
         }
 
         $employee->update($data);
+
+        $actorId = $request->user()?->id;
+        $recipients = User::query()->role(['admin', 'hr'])->get()->reject(fn ($u) => (int) $u->id === (int) $actorId);
+        if ($employee->user_id) {
+            $linked = User::query()->find($employee->user_id);
+            if ($linked) {
+                $recipients->push($linked);
+            }
+        }
+        $recipients = $recipients->unique('id')->values();
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new ActivityNotification([
+                'title' => 'Employee updated',
+                'body' => $employee->full_name.' profile was updated.',
+                'link' => '/employees/'.$employee->id,
+                'meta' => ['employee_id' => $employee->id],
+            ]));
+        }
 
         return new EmployeeResource(
             $employee->fresh()->load(['department', 'designation', 'manager'])

@@ -28,21 +28,12 @@
                 <span v-else>HR overview</span>
             </p>
 
-            <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto overscroll-contain lg:grid-cols-12 lg:overflow-hidden lg:pr-1">
+            <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto overscroll-contain lg:grid-cols-12 lg:overflow-hidden lg:pr-1">
                 <!-- Left 25%: intro, snapshot, modules -->
                 <div class="space-y-4 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
-                    <div
-                        class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-950/40 via-[#121820] to-[#0c1016] p-4 ring-1 ring-white/5"
-                    >
-                        <div
-                            class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500/20 blur-2xl"
-                        />
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/90">HR overview</p>
-                        <p v-if="me.employee" class="mt-2 text-xs text-slate-500">
-                            <span class="font-mono text-emerald-200/80">{{ me.employee.employee_code }}</span>
-                            <span v-if="me.employee.designation_name"> · {{ me.employee.designation_name }}</span>
-                        </p>
-                        <p v-else class="mt-2 text-xs text-white/90">Company news and birthdays are in the center and right.</p>
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 ring-1 ring-white/5">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Local time</p>
+                        <p class="mt-1 text-2xl font-bold tabular-nums text-white">{{ essTime || '—' }}</p>
                     </div>
 
                     <div
@@ -58,49 +49,73 @@
                             <article
                                 v-for="card in stats"
                                 :key="card.title"
-                                class="group rounded-xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-emerald-500/30"
+                                class="group rounded-xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-amber-500/25"
                             >
                                 <p class="text-[10px] font-medium text-slate-500">{{ card.title }}</p>
                                 <p class="mt-1 text-xl font-semibold tabular-nums text-white">{{ card.value }}</p>
                                 <span
-                                    class="mt-1 flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-400 [&>svg]:block"
+                                    class="mt-1 flex h-7 w-7 items-center justify-center rounded-md bg-white/10 text-amber-400 [&>svg]:block"
                                     v-html="card.icon"
                                 ></span>
                             </article>
                         </div>
                     </section>
 
-                    <section>
-                        <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Quick links</h3>
-                        <div class="flex flex-col gap-2">
-                            <button
-                                type="button"
-                                class="w-full rounded-lg border border-dashed border-emerald-500/30 bg-emerald-500/5 px-3 py-2.5 text-left text-xs text-slate-300 transition hover:bg-emerald-500/10"
-                                @click="router.push('/employees')"
-                            >
-                                <span class="font-medium text-emerald-200">Employees</span>
-                                <span class="ml-1 text-slate-500">→</span>
-                            </button>
-                            <button
-                                type="button"
-                                class="w-full rounded-lg border border-dashed border-white/15 bg-white/[0.02] px-3 py-2.5 text-left text-xs text-slate-300 transition hover:bg-white/[0.04]"
-                                @click="router.push('/attendance')"
-                            >
-                                <span class="font-medium text-slate-200">Attendance</span>
-                                <span class="ml-1 text-slate-500">→</span>
-                            </button>
-                        </div>
+                    <section v-if="todayBirthdays.length">
+                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400/90">Today</h3>
+                        <ul class="space-y-2">
+                            <li v-for="b in todayBirthdays" :key="'lt-' + b.employee_id">
+                                <BirthdayCard :row="b" />
+                            </li>
+                        </ul>
                     </section>
+                    <section v-if="soonBirthdays.length">
+                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Next 2 wks</h3>
+                        <ul class="space-y-2">
+                            <li v-for="b in soonBirthdays" :key="'ls-' + b.employee_id">
+                                <BirthdayCard :row="b" />
+                            </li>
+                        </ul>
+                    </section>
+                    <section v-if="laterBirthdays.length">
+                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Later (90d)</h3>
+                        <ul class="space-y-1.5">
+                            <li v-for="b in laterBirthdays" :key="'ll-' + b.employee_id">
+                                <BirthdayCard :row="b" compact />
+                            </li>
+                        </ul>
+                    </section>
+                    <p v-if="!birthdays.length && !state.birthdaysError" class="text-center text-xs text-slate-500">No birthday data.</p>
                 </div>
 
                 <!-- Center 50%: announcements -->
                 <div class="space-y-3 lg:col-span-6 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
+                    <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 ring-1 ring-white/5">
+                        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            <div class="rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                                <p class="text-[10px] uppercase tracking-wide text-slate-500">Employees</p>
+                                <p class="mt-1 text-lg font-semibold text-white tabular-nums">{{ state.metrics.employees }}</p>
+                            </div>
+                            <div class="rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                                <p class="text-[10px] uppercase tracking-wide text-slate-500">On leave</p>
+                                <p class="mt-1 text-lg font-semibold text-white tabular-nums">{{ state.metrics.onLeaveToday }}</p>
+                            </div>
+                            <div class="rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                                <p class="text-[10px] uppercase tracking-wide text-slate-500">Pending approvals</p>
+                                <p class="mt-1 text-lg font-semibold text-white tabular-nums">{{ state.metrics.pendingApprovals }}</p>
+                            </div>
+                            <div class="rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                                <p class="text-[10px] uppercase tracking-wide text-slate-500">Open positions</p>
+                                <p class="mt-1 text-lg font-semibold text-white tabular-nums">{{ state.metrics.openPositions }}</p>
+                            </div>
+                        </div>
+                    </section>
                     <div class="flex items-end justify-between gap-2 border-b border-white/10 pb-2">
                         <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500">Announcements</h3>
                         <RouterLink
                             v-if="me.flags?.hr_announcements_manage"
                             to="/announcements"
-                            class="text-xs font-medium text-emerald-400 hover:text-emerald-300"
+                            class="text-xs font-medium text-amber-400 hover:text-amber-300"
                         >Manage</RouterLink>
                     </div>
                     <p
@@ -113,18 +128,25 @@
                         <li
                             v-for="a in feed"
                             :key="a.id"
-                            class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] ring-1 ring-white/5"
+                            class="overflow-hidden rounded-2xl border bg-white/[0.03] ring-1"
+                            :class="isAnnouncementRead(a) ? 'border-white/10 ring-white/5' : 'border-amber-500/40 ring-amber-500/15'"
                         >
                             <div
-                                class="h-1 w-full bg-gradient-to-r from-emerald-500/60 to-emerald-800/30"
-                                :class="a.is_pinned ? 'from-amber-500/80' : ''"
+                                class="h-1 w-full bg-gradient-to-r from-white/25 to-white/5"
+                                :class="a.is_pinned ? 'from-amber-500/70 to-amber-900/40' : ''"
                             />
                             <button
                                 type="button"
                                 class="block w-full p-3 text-left transition hover:bg-white/[0.02] sm:p-4"
                                 @click="openAnnouncement(a)"
                             >
-                                <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
+                                    <span
+                                        v-if="!isAnnouncementRead(a)"
+                                        class="rounded-full border border-amber-500/45 bg-[rgb(249_184_79_/0.12)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200"
+                                    >Unread</span>
+                                </div>
                                 <h4 class="mt-1 text-sm font-semibold text-white">
                                     <span v-if="a.is_pinned" class="text-amber-400">* </span>{{ a.title }}
                                 </h4>
@@ -136,55 +158,42 @@
 
                 <!-- Right 25%: time, calendar, birthdays -->
                 <div class="space-y-4 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
-                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 ring-1 ring-white/5">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Local time</p>
-                        <p class="mt-1 text-2xl font-bold tabular-nums text-white">{{ essTime || '—' }}</p>
-                    </div>
-
-                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 ring-1 ring-white/5">
-                        <h3 class="text-sm font-semibold text-white">{{ calendarGrid.monthLabel }}</h3>
-                        <div class="mt-2 grid grid-cols-7 gap-0.5 text-center text-[8px] font-semibold text-slate-500">
-                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-                        </div>
-                        <div class="mt-0.5 space-y-0.5">
-                            <div v-for="(week, wi) in calendarGrid.weeks" :key="'hrw-' + wi" class="grid grid-cols-7 gap-0.5">
-                                <div
-                                    v-for="(cell, ci) in week"
-                                    :key="ci"
-                                    class="flex aspect-square min-h-0 items-center justify-center rounded text-[9px]"
-                                    :class="cell.day ? (cell.isToday ? 'bg-emerald-600 font-bold text-white' : 'bg-white/5 text-slate-300') : ''"
-                                >
-                                    {{ cell.day || '' }}
+                    <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 ring-1 ring-white/5">
+                        <h3 class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300/95">Best attendance</h3>
+                        <ul v-if="state.attendanceSpotlight.best.length" class="space-y-1.5">
+                            <li
+                                v-for="r in state.attendanceSpotlight.best"
+                                :key="'best-' + r.employee_id"
+                                class="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/10 px-2 py-1.5"
+                            >
+                                <div class="min-w-0">
+                                    <p class="truncate text-xs font-medium text-white">{{ r.full_name }}</p>
+                                    <p class="text-[10px] text-slate-400">Late {{ r.late_days }} · Leave {{ r.leave_days }}</p>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
+                                <span class="shrink-0 text-[10px] font-semibold text-amber-300">{{ r.attendance_days }}d</span>
+                            </li>
+                        </ul>
+                        <p v-else class="text-xs text-slate-500">No spotlight data yet.</p>
+                    </section>
 
-                    <section v-if="todayBirthdays.length">
-                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400/90">Today</h3>
-                        <ul class="space-y-2">
-                            <li v-for="b in todayBirthdays" :key="'t-' + b.employee_id">
-                                <BirthdayCard :row="b" />
+                    <section class="rounded-2xl border border-rose-500/25 bg-rose-500/10 p-3 ring-1 ring-rose-500/15">
+                        <h3 class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-rose-200">Needs attention</h3>
+                        <ul v-if="state.attendanceSpotlight.needsAttention.length" class="space-y-1.5">
+                            <li
+                                v-for="r in state.attendanceSpotlight.needsAttention"
+                                :key="'attention-' + r.employee_id"
+                                class="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/10 px-2 py-1.5"
+                            >
+                                <div class="min-w-0">
+                                    <p class="truncate text-xs font-medium text-white">{{ r.full_name }}</p>
+                                    <p class="text-[10px] text-rose-200/90">Late {{ r.late_days }} · Leave {{ r.leave_days }}</p>
+                                </div>
+                                <span class="shrink-0 text-[10px] font-semibold text-rose-200">{{ r.attendance_days }}d</span>
                             </li>
                         </ul>
+                        <p v-else class="text-xs text-rose-100/80">No attention data yet.</p>
                     </section>
-                    <section v-if="soonBirthdays.length">
-                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Next 2 wks</h3>
-                        <ul class="space-y-2">
-                            <li v-for="b in soonBirthdays" :key="'s-' + b.employee_id">
-                                <BirthdayCard :row="b" />
-                            </li>
-                        </ul>
-                    </section>
-                    <section v-if="laterBirthdays.length">
-                        <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Later (90d)</h3>
-                        <ul class="space-y-1.5">
-                            <li v-for="b in laterBirthdays" :key="'l-' + b.employee_id">
-                                <BirthdayCard :row="b" compact />
-                            </li>
-                        </ul>
-                    </section>
-                    <p v-if="!birthdays.length && !state.birthdaysError" class="text-center text-xs text-slate-500">No birthday data.</p>
+
                 </div>
             </div>
         </template>
@@ -193,7 +202,7 @@
         <template v-else-if="!state.loading && !isHr">
             <p class="mb-4 shrink-0 text-sm text-slate-400">Welcome back{{ me.employee ? `, ${me.employee.full_name}` : '' }}</p>
 
-            <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto overscroll-contain lg:grid-cols-12 lg:overflow-hidden lg:pr-1">
+            <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto overscroll-contain lg:grid-cols-12 lg:overflow-hidden lg:pr-1">
                 <!-- Left 25%: profile, leave, shortcuts -->
                 <div class="space-y-6 lg:col-span-3 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
                     <!-- Profile card -->
@@ -212,7 +221,7 @@
                                     <h2 class="truncate text-lg font-semibold text-white">{{ me.employee?.full_name || me.user?.name || 'Employee' }}</h2>
                                     <p class="mt-0.5 text-sm text-slate-400">
                                         {{ me.employee?.designation_name || '—' }}
-                                        <span v-if="me.employee?.employee_code" class="font-mono text-emerald-200/80"> ({{ me.employee.employee_code }})</span>
+                                        <span v-if="me.employee?.employee_code" class="font-mono text-amber-200/85"> ({{ me.employee.employee_code }})</span>
                                     </p>
                                     <p class="mt-1 text-xs text-slate-500">{{ me.employee?.department_name || '—' }}</p>
                                 </div>
@@ -225,7 +234,7 @@
                                             background: `conic-gradient(rgb(16 185 129) ${profileProgress * 3.6}deg, rgba(255,255,255,0.12) 0deg)`,
                                         }"
                                     />
-                                    <div class="absolute inset-0.5 flex items-center justify-center rounded-full bg-[#0c1016] text-[10px] font-bold text-emerald-300">
+                                    <div class="absolute inset-0.5 flex items-center justify-center rounded-full bg-[#0c1016] text-[10px] font-bold text-amber-300">
                                         {{ profileProgress }}%
                                     </div>
                                 </div>
@@ -269,7 +278,7 @@
                             </tbody>
                         </table>
                         <div class="border-t border-white/10 bg-white/[0.03] px-3 py-2 text-right">
-                            <router-link to="/my/leave" class="text-[10px] font-semibold text-emerald-400 hover:text-emerald-300">Go to leave →</router-link>
+                            <router-link to="/my/leave" class="text-[10px] font-semibold text-amber-400 hover:text-amber-300">Go to leave →</router-link>
                         </div>
                     </div>
 
@@ -294,6 +303,31 @@
 
                 <!-- Center 50%: announcements -->
                 <div class="space-y-4 lg:col-span-6 lg:min-h-0 lg:min-w-0 lg:overflow-y-auto lg:pr-1">
+                    <section
+                        v-if="me.flags?.ess_attendance_view && me.employee"
+                        class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 ring-1 ring-white/5"
+                    >
+                        <div class="mb-3 flex items-center justify-between gap-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Attendance chart (this month)</h3>
+                            <router-link to="/my/attendance" class="text-[11px] font-medium text-amber-400 hover:text-amber-300">
+                                Open details →
+                            </router-link>
+                        </div>
+                        <div v-if="myAttendanceBars.length" class="grid grid-cols-4 gap-2">
+                            <div v-for="b in myAttendanceBars" :key="b.key" class="rounded-lg border border-white/10 bg-white/[0.02] p-2">
+                                <p class="text-[10px] text-slate-500">{{ b.label }}</p>
+                                <div class="relative mt-1.5 h-20 rounded bg-white/10 p-1">
+                                    <div
+                                        class="absolute bottom-1 left-1 right-1 rounded-sm bg-amber-500/75"
+                                        :style="{ height: `${Math.max(8, b.pct)}%` }"
+                                    ></div>
+                                </div>
+                                <p class="mt-1 text-center text-xs font-semibold text-white tabular-nums">{{ b.value }}</p>
+                            </div>
+                        </div>
+                        <p v-else class="text-xs text-slate-500">Attendance chart will appear after monthly data loads.</p>
+                    </section>
+
                     <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500">Announcements</h3>
                     <p
                         v-if="!feed.length"
@@ -305,11 +339,12 @@
                         <li
                             v-for="a in feed"
                             :key="a.id"
-                            class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] ring-1 ring-white/5"
+                            class="overflow-hidden rounded-2xl border bg-white/[0.03] ring-1"
+                            :class="isAnnouncementRead(a) ? 'border-white/10 ring-white/5' : 'border-amber-500/40 ring-amber-500/15'"
                         >
                             <div
-                                class="h-1 w-full bg-gradient-to-r from-emerald-500/60 to-emerald-800/30"
-                                :class="a.is_pinned ? 'from-amber-500/80' : ''"
+                                class="h-1 w-full bg-gradient-to-r from-white/25 to-white/5"
+                                :class="a.is_pinned ? 'from-amber-500/70 to-amber-900/40' : ''"
                             />
                             <button
                                 type="button"
@@ -319,7 +354,13 @@
                                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xs font-bold text-slate-400">HR</div>
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-white">HR Portal</p>
-                                    <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
+                                    <div class="mt-0.5 flex items-center justify-between gap-2">
+                                        <p class="text-[11px] text-slate-500">{{ formatPublished(a.published_at) }}</p>
+                                        <span
+                                            v-if="!isAnnouncementRead(a)"
+                                            class="rounded-full border border-amber-500/45 bg-[rgb(249_184_79_/0.12)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200"
+                                        >Unread</span>
+                                    </div>
                                     <h4 class="mt-2 text-base font-semibold text-slate-100">{{ a.title }}</h4>
                                     <p class="mt-2 truncate text-sm leading-relaxed text-slate-400">{{ oneLineAnnouncement(a) }}</p>
                                 </div>
@@ -365,7 +406,7 @@
                                     v-for="(cell, ci) in week"
                                     :key="ci"
                                     class="flex aspect-square min-h-0 items-center justify-center rounded-md text-[10px]"
-                                    :class="cell.day ? (cell.isToday ? 'bg-emerald-600 font-bold text-white ring-1 ring-emerald-400/50' : 'bg-white/5 text-slate-300') : 'bg-transparent'"
+                                    :class="cell.day ? (cell.isToday ? 'bg-amber-600 font-bold text-white ring-1 ring-amber-400/45' : 'bg-white/5 text-slate-300') : 'bg-transparent'"
                                 >
                                     {{ cell.day || '' }}
                                 </div>
@@ -388,7 +429,7 @@
                                     <span class="text-[8px] text-slate-500">Gross</span>
                                 </div>
                                 <div class="flex w-6 flex-col items-center gap-0.5">
-                                    <div class="w-full rounded-t-md bg-emerald-500/80" :style="{ height: payBarHeights.a + '%' }"></div>
+                                    <div class="w-full rounded-t-md bg-amber-500/85" :style="{ height: payBarHeights.a + '%' }"></div>
                                     <span class="text-[8px] text-slate-500">+Add</span>
                                 </div>
                                 <div class="flex w-6 flex-col items-center gap-0.5">
@@ -414,9 +455,9 @@
                                     <p class="text-[9px] font-medium uppercase text-slate-500">Gross</p>
                                     <p class="mt-0.5 text-xs font-semibold text-white tabular-nums">{{ formatMoney(latestPayslip.gross_amount) }}</p>
                                 </div>
-                                <div class="rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-2 text-center">
-                                    <p class="text-[9px] font-medium uppercase text-emerald-300/90">Additions</p>
-                                    <p class="mt-0.5 text-xs font-semibold text-emerald-200 tabular-nums">+{{ formatMoney(latestPayslip.total_allowances) }}</p>
+                                <div class="rounded-lg border border-amber-500/25 bg-[rgb(249_184_79_/0.08)] p-2 text-center">
+                                    <p class="text-[9px] font-medium uppercase text-amber-300/90">Additions</p>
+                                    <p class="mt-0.5 text-xs font-semibold text-amber-200 tabular-nums">+{{ formatMoney(latestPayslip.total_allowances) }}</p>
                                 </div>
                                 <div class="rounded-lg border border-amber-500/25 bg-amber-500/10 p-2 text-center">
                                     <p class="text-[9px] font-medium uppercase text-amber-200/90">Deductions</p>
@@ -429,7 +470,7 @@
                             </div>
                             <router-link
                                 to="/my/payslips"
-                                class="mt-3 inline-flex text-xs font-medium text-emerald-400 transition hover:text-emerald-300"
+                                class="mt-3 inline-flex text-xs font-medium text-amber-400 transition hover:text-amber-300"
                             >View all payslips →</router-link>
                         </template>
                         <p v-else class="mt-2 text-xs text-slate-500">No payroll run for you yet.</p>
@@ -477,6 +518,8 @@ const router = useRouter();
 
 const latestPayslip = ref(null);
 const payslipLoading = ref(false);
+const myAttendanceBars = ref([]);
+const announcementReadIds = ref([]);
 
 const me = reactive({
     user: null,
@@ -491,6 +534,10 @@ const state = reactive({
     loading: true,
     birthdaysError: '',
     hiddenMetrics: [],
+    attendanceSpotlight: {
+        best: [],
+        needsAttention: [],
+    },
     metrics: {
         employees: 0,
         onLeaveToday: 0,
@@ -583,7 +630,6 @@ const announcementModal = reactive({
     open: false,
     item: null,
 });
-
 function formatLeaveRange(row) {
     if (!row?.start_date || !row?.end_date) {
         return '—';
@@ -594,7 +640,7 @@ function formatLeaveRange(row) {
 function leaveStatusClass(status) {
     const s = String(status || '').toLowerCase();
     if (s === 'approved') {
-        return 'bg-emerald-500/15 text-emerald-300';
+        return 'bg-[rgb(249_184_79_/0.15)] text-amber-200';
     }
     if (s === 'rejected' || s === 'denied') {
         return 'bg-red-500/15 text-red-300';
@@ -658,7 +704,40 @@ function oneLineAnnouncement(row) {
     return text || 'No details.';
 }
 
+function announcementStorageKey() {
+    const uid = me.user?.id ?? 'guest';
+    return `hrportal-announcement-read:${uid}`;
+}
+
+function loadAnnouncementReads() {
+    try {
+        const raw = localStorage.getItem(announcementStorageKey());
+        const parsed = raw ? JSON.parse(raw) : [];
+        announcementReadIds.value = Array.isArray(parsed) ? parsed.map((v) => String(v)) : [];
+    } catch {
+        announcementReadIds.value = [];
+    }
+}
+
+function saveAnnouncementReads() {
+    localStorage.setItem(announcementStorageKey(), JSON.stringify(announcementReadIds.value));
+}
+
+function isAnnouncementRead(row) {
+    return announcementReadIds.value.includes(String(row?.id ?? ''));
+}
+
+function markAnnouncementRead(row) {
+    const id = String(row?.id ?? '');
+    if (!id || announcementReadIds.value.includes(id)) {
+        return;
+    }
+    announcementReadIds.value = [...announcementReadIds.value, id];
+    saveAnnouncementReads();
+}
+
 function openAnnouncement(row) {
+    markAnnouncementRead(row);
     announcementModal.item = row ?? null;
     announcementModal.open = !!row;
 }
@@ -690,6 +769,53 @@ function payPeriodLabel(row) {
         });
     } catch {
         return `${y}-${m}`;
+    }
+}
+
+function currentYm() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function buildAttendanceBars(rows) {
+    const buckets = [
+        { key: 'present', label: 'Present', value: 0 },
+        { key: 'late', label: 'Late', value: 0 },
+        { key: 'absent', label: 'Absent', value: 0 },
+        { key: 'leave', label: 'Leave', value: 0 },
+    ];
+    for (const r of rows) {
+        const status = String(r?.status || '').toLowerCase();
+        if (status === 'absent') {
+            buckets[2].value += 1;
+            continue;
+        }
+        if (status === 'on_leave') {
+            buckets[3].value += 1;
+            continue;
+        }
+        if (Number(r?.late_minutes || 0) > 0) {
+            buckets[1].value += 1;
+            continue;
+        }
+        buckets[0].value += 1;
+    }
+    const max = Math.max(1, ...buckets.map((b) => b.value));
+    return buckets.map((b) => ({ ...b, pct: Math.round((b.value / max) * 100) }));
+}
+
+async function fetchMyAttendanceBars() {
+    if (!me.employee?.id) {
+        myAttendanceBars.value = [];
+        return;
+    }
+    try {
+        const { data } = await window.axios.get(`/api/employees/${me.employee.id}/attendances`, {
+            params: { month: currentYm() },
+        });
+        myAttendanceBars.value = buildAttendanceBars(data?.data ?? []);
+    } catch {
+        myAttendanceBars.value = [];
     }
 }
 
@@ -797,7 +923,7 @@ const BirthdayCard = {
                 {
                     class: [
                         'flex items-center gap-3 rounded-2xl border bg-white/[0.03] px-4 py-3',
-                        b.is_me ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : 'border-white/10',
+                        b.is_me ? 'border-amber-500/45 ring-1 ring-amber-500/15' : 'border-white/10',
                         compact ? 'py-2' : '',
                     ],
                 },
@@ -816,7 +942,7 @@ const BirthdayCard = {
                     h('div', { class: 'min-w-0 flex-1' }, [
                         h('p', { class: 'truncate text-sm font-medium text-white' }, [
                             b.full_name,
-                            b.is_me ? h('span', { class: 'ml-1 text-xs font-normal text-emerald-300' }, '(You)') : null,
+                            b.is_me ? h('span', { class: 'ml-1 text-xs font-normal text-amber-300' }, '(You)') : null,
                         ]),
                         h(
                             'p',
@@ -850,6 +976,7 @@ onMounted(async () => {
         me.user = meRes.data.user ?? null;
         me.employee = meRes.data.employee ?? null;
         me.flags = meRes.data.flags ?? {};
+        loadAnnouncementReads();
 
         const hr = !!me.flags.hr_dashboard;
 
@@ -876,12 +1003,17 @@ onMounted(async () => {
                     const onLeaveToday = await fetchOnLeaveToday();
                     const pendingLeaves = await safeGet('/api/leave-requests/pending', 'leave approvals');
                     const jobPositions = await safeGet('/api/job-positions', 'recruitment');
+                    const attendanceSpotlight = await safeGet('/api/attendances/spotlight', 'attendance spotlight');
                     state.metrics.employees = employeeCount;
                     state.metrics.onLeaveToday = onLeaveToday;
                     state.metrics.pendingApprovals = pendingLeaves.ok ? (pendingLeaves.data?.data ?? []).length : 0;
                     if (jobPositions.ok) {
                         state.metrics.openPositions = (jobPositions.data?.data ?? []).filter((r) => r.status === 'open')
                             .length;
+                    }
+                    if (attendanceSpotlight.ok) {
+                        state.attendanceSpotlight.best = attendanceSpotlight.data?.best ?? [];
+                        state.attendanceSpotlight.needsAttention = attendanceSpotlight.data?.needs_attention ?? [];
                     }
                 })()
             );
@@ -906,6 +1038,10 @@ onMounted(async () => {
 
         if (!hr && me.flags?.ess_leave_apply && me.employee) {
             tasks.push(fetchMyLeave());
+        }
+
+        if (!hr && me.flags?.ess_attendance_view && me.employee) {
+            tasks.push(fetchMyAttendanceBars());
         }
 
 
