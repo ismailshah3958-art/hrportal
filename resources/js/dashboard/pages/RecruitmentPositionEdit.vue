@@ -84,12 +84,12 @@ async function save() {
     <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-                <button type="button" class="mb-2 text-xs text-emerald-400 hover:text-emerald-300" @click="router.push(`/recruitment/${positionId}`)">← View position</button>
+                <button type="button" class="mb-2 text-xs text-amber-400 hover:text-amber-300" @click="router.push(`/recruitment/${positionId}`)">← View position</button>
                 <h2 class="text-lg font-semibold text-white sm:text-xl">Edit position</h2>
             </div>
         </div>
 
-        <div v-if="state.message" class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{{ state.message }}</div>
+        <div v-if="state.message" class="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{{ state.message }}</div>
         <div v-if="state.error" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ state.error }}</div>
 
         <form v-if="!state.loading" class="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:grid-cols-2 xl:grid-cols-4" @submit.prevent="save">
@@ -110,7 +110,7 @@ async function save() {
             <input v-model="form.closing_date" type="date" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
             <textarea v-model="form.description" rows="3" placeholder="Description" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white sm:col-span-2 xl:col-span-4"></textarea>
             <div class="xl:col-span-4 flex gap-2">
-                <button type="submit" :disabled="state.saving" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">Save</button>
+                <button type="submit" :disabled="state.saving" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50">Save</button>
                 <button type="button" class="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5" @click="router.push('/recruitment')">Cancel</button>
             </div>
         </form>

@@ -222,7 +222,7 @@ const filteredApplications = computed(() => {
     <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-                <button type="button" class="mb-2 text-xs text-emerald-400 hover:text-emerald-300" @click="router.push('/recruitment')">← Back to positions</button>
+                <button type="button" class="mb-2 text-xs text-amber-400 hover:text-amber-300" @click="router.push('/recruitment')">← Back to positions</button>
                 <h2 class="text-lg font-semibold text-white sm:text-xl">
                     {{ state.position?.title ?? 'Applications' }}
                 </h2>
@@ -236,7 +236,7 @@ const filteredApplications = computed(() => {
             </div>
         </div>
 
-        <div v-if="state.message" class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{{ state.message }}</div>
+        <div v-if="state.message" class="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{{ state.message }}</div>
         <div v-if="state.error" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ state.error }}</div>
 
         <form class="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:grid-cols-2 lg:grid-cols-4" @submit.prevent="addApplication">
@@ -245,7 +245,7 @@ const filteredApplications = computed(() => {
             <input v-model="form.phone" placeholder="Phone" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
             <input v-model="form.notes" placeholder="Notes" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
             <div class="sm:col-span-2 lg:col-span-4">
-                <button type="submit" :disabled="state.saving" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">Add candidate</button>
+                <button type="submit" :disabled="state.saving" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50">Add candidate</button>
             </div>
         </form>
 
@@ -257,7 +257,7 @@ const filteredApplications = computed(() => {
                     :key="s"
                     type="button"
                     class="rounded-xl border px-3 py-3 text-left transition"
-                    :class="state.filterStage === s ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 bg-white/[0.03] hover:border-white/20'"
+                    :class="state.filterStage === s ? 'border-amber-500/50 bg-amber-500/10' : 'border-white/10 bg-white/[0.03] hover:border-white/20'"
                     @click="state.filterStage = state.filterStage === s ? 'all' : s"
                 >
                     <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{{ s }}</p>
@@ -293,7 +293,7 @@ const filteredApplications = computed(() => {
                     <button
                         type="button"
                         class="rounded-lg border px-2.5 py-1.5 text-xs transition"
-                        :class="state.filterInterview === 'all' ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+                        :class="state.filterInterview === 'all' ? 'border-amber-500/50 bg-amber-500/10 text-amber-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
                         @click="state.filterInterview = 'all'"
                     >
                         Any · {{ state.applications.length }}
@@ -301,7 +301,7 @@ const filteredApplications = computed(() => {
                     <button
                         type="button"
                         class="rounded-lg border px-2.5 py-1.5 text-xs transition"
-                        :class="state.filterInterview === 'none' ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+                        :class="state.filterInterview === 'none' ? 'border-amber-500/50 bg-amber-500/10 text-amber-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
                         @click="state.filterInterview = state.filterInterview === 'none' ? 'all' : 'none'"
                     >
                         No interviews · {{ countAppsNoInterviews() }}
@@ -311,7 +311,7 @@ const filteredApplications = computed(() => {
                         :key="'iv-' + st"
                         type="button"
                         class="rounded-lg border px-2.5 py-1.5 text-xs capitalize transition"
-                        :class="state.filterInterview === st ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+                        :class="state.filterInterview === st ? 'border-amber-500/50 bg-amber-500/10 text-amber-100' : 'border-white/10 text-slate-300 hover:bg-white/5'"
                         @click="state.filterInterview = state.filterInterview === st ? 'all' : st"
                     >
                         {{ interviewStatusLabel(st) }} · {{ countAppsWithInterviewStatus(st) }}
@@ -362,7 +362,7 @@ const filteredApplications = computed(() => {
                                 <option v-for="s in stages" :key="s" :value="s">{{ s }}</option>
                             </select>
                             <div class="flex flex-wrap gap-1">
-                                <button type="button" class="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200 hover:bg-emerald-500/20" @click="updateStage(row, 'hired')">Hire</button>
+                                <button type="button" class="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-200 hover:bg-amber-500/20" @click="updateStage(row, 'hired')">Hire</button>
                                 <button type="button" class="rounded border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] text-red-200 hover:bg-red-500/20" @click="updateStage(row, 'rejected')">Reject</button>
                                 <button type="button" class="rounded border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] text-violet-200 hover:bg-violet-500/20" @click="updateStage(row, 'interview')">Interview</button>
                             </div>

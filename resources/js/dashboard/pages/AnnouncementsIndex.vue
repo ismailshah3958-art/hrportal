@@ -158,7 +158,7 @@ function formatWhen(iso) {
             <h2 class="text-lg font-semibold text-white sm:text-xl">Announcements</h2>
         </div>
 
-        <div v-if="state.message" class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{{ state.message }}</div>
+        <div v-if="state.message" class="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{{ state.message }}</div>
         <div v-if="state.error" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ state.error }}</div>
 
         <form class="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4" @submit.prevent="createAnnouncement">
@@ -190,7 +190,7 @@ function formatWhen(iso) {
                     </label>
                 </div>
             </div>
-            <button type="submit" :disabled="state.saving" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">Save</button>
+            <button type="submit" :disabled="state.saving" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50">Save</button>
         </form>
 
         <form v-if="edit.id" class="space-y-3 rounded-2xl border border-violet-500/25 bg-violet-500/5 p-4" @submit.prevent="saveEdit">
@@ -238,7 +238,7 @@ function formatWhen(iso) {
                         <td class="px-4 py-3 text-xs">{{ formatWhen(row.published_at) }}</td>
                         <td class="px-4 py-3 text-xs">{{ (row.target_audience?.department_ids || []).length ? row.target_audience.department_ids.join(', ') : 'All' }}</td>
                         <td class="px-4 py-3 text-right">
-                            <button type="button" class="mr-2 text-xs text-emerald-400 hover:text-emerald-300" @click="startEdit(row)">Edit</button>
+                            <button type="button" class="mr-2 text-xs text-amber-400 hover:text-amber-300" @click="startEdit(row)">Edit</button>
                             <button type="button" class="text-xs text-red-300 hover:text-red-200" @click="removeRow(row.id)">Delete</button>
                         </td>
                     </tr>

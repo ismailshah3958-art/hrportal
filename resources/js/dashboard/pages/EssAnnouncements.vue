@@ -142,7 +142,7 @@ function formatPublished(iso) {
                         v-for="b in todayBirthdays"
                         :key="'t-' + b.employee_id"
                         class="flex items-center gap-4 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-500/10 to-white/[0.02] p-4"
-                        :class="b.is_me ? 'ring-2 ring-emerald-500/30' : ''"
+                        :class="b.is_me ? 'ring-2 ring-amber-500/30' : ''"
                     >
                         <div
                             class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-sm font-semibold text-slate-200"
@@ -153,7 +153,7 @@ function formatPublished(iso) {
                         <div class="min-w-0 flex-1">
                             <p class="font-medium text-white">
                                 {{ b.full_name }}
-                                <span v-if="b.is_me" class="ml-1 text-xs font-normal text-emerald-300">(You)</span>
+                                <span v-if="b.is_me" class="ml-1 text-xs font-normal text-amber-300">(You)</span>
                             </p>
                             <p class="text-xs text-slate-500">{{ b.designation_name || '—' }} · {{ b.department_name || '—' }}</p>
                         </div>
@@ -172,7 +172,7 @@ function formatPublished(iso) {
                         v-for="b in soonBirthdays"
                         :key="'s-' + b.employee_id"
                         class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3"
-                        :class="b.is_me ? 'ring-1 ring-emerald-500/25' : ''"
+                        :class="b.is_me ? 'ring-1 ring-amber-500/25' : ''"
                     >
                         <div class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-slate-300">
                             <img v-if="b.profile_photo_url" :src="b.profile_photo_url" alt="" class="h-full w-full object-cover">
@@ -183,7 +183,7 @@ function formatPublished(iso) {
                             <p class="truncate text-xs text-slate-500">{{ b.department_name || '—' }}</p>
                         </div>
                         <div class="shrink-0 text-right text-xs text-slate-400">
-                            <span class="font-medium text-emerald-200/90">in {{ b.days_until }}d</span>
+                            <span class="font-medium text-amber-200/90">in {{ b.days_until }}d</span>
                             <p class="text-[10px] text-slate-600">{{ formatShortDate(b.next_birthday_on) }}</p>
                         </div>
                     </li>
@@ -231,7 +231,7 @@ function formatPublished(iso) {
                         class="overflow-hidden rounded-2xl border border-white/10 bg-[#121820] shadow-lg shadow-black/20"
                     >
                         <div
-                            class="h-1 w-full bg-gradient-to-r from-violet-500/60 via-emerald-500/40 to-transparent"
+                            class="h-1 w-full bg-gradient-to-r from-violet-500/60 via-amber-500/40 to-transparent"
                             :class="a.is_pinned ? 'from-amber-500/70' : ''"
                         />
                         <div class="flex gap-4 p-4 sm:p-5">

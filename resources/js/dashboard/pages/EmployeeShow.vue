@@ -9,6 +9,7 @@ const state = reactive({
     row: null,
     loading: true,
     error: '',
+    banner: '',
     documents: [],
     documentsLoading: false,
     documentsError: '',
@@ -72,8 +73,8 @@ const salaryLabel = computed(() => formatSalary(state.row?.salary));
 
 function statusClass(status) {
     const map = {
-        active: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/25',
-        on_leave: 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-500/25',
+        active: 'bg-amber-500/25 text-amber-50 ring-1 ring-amber-400/50',
+        on_leave: 'bg-orange-500/20 text-orange-100 ring-1 ring-orange-400/40',
         resigned: 'bg-slate-500/20 text-slate-300 ring-1 ring-white/10',
         terminated: 'bg-red-500/15 text-red-200 ring-1 ring-red-500/25',
     };
@@ -94,12 +95,30 @@ async function loadDocuments() {
     }
 }
 
+function consumeFlashBanner() {
+    state.banner = '';
+    try {
+        const raw = sessionStorage.getItem('hrportal-flash');
+        if (!raw) {
+            return;
+        }
+        sessionStorage.removeItem('hrportal-flash');
+        const parsed = JSON.parse(raw);
+        if (parsed?.text) {
+            state.banner = String(parsed.text);
+        }
+    } catch {
+        sessionStorage.removeItem('hrportal-flash');
+    }
+}
+
 async function load() {
     state.loading = true;
     state.error = '';
     try {
         const { data } = await window.axios.get(`/api/employees/${route.params.id}`);
         state.row = data.data;
+        consumeFlashBanner();
         await loadDocuments();
     } catch (e) {
         state.error = e.response?.data?.message ?? 'Could not load employee.';
@@ -194,7 +213,7 @@ function initials(name) {
                 <button
                     v-if="state.row"
                     type="button"
-                    class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 hover:bg-emerald-500"
+                    class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-amber-900/30 hover:bg-amber-500"
                     @click="router.push(`/employees/${state.row.id}/edit`)"
                 >
                     Edit
@@ -207,6 +226,13 @@ function initials(name) {
             class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
         >
             {{ state.error }}
+        </div>
+
+        <div
+            v-if="state.banner"
+            class="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+        >
+            {{ state.banner }}
         </div>
 
         <div v-if="state.loading" class="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-16 text-center text-slate-500">
@@ -232,7 +258,7 @@ function initials(name) {
                         <span v-else>{{ initials(state.row.full_name) }}</span>
                     </div>
                     <div class="min-w-0 flex-1">
-                        <p class="font-mono text-xs text-emerald-200/90">{{ display(state.row.employee_code) }}</p>
+                        <p class="font-mono text-xs text-amber-200/90">{{ display(state.row.employee_code) }}</p>
                         <h3 class="mt-1 text-xl font-semibold text-white">{{ display(state.row.full_name) }}</h3>
                         <p class="mt-1 text-sm text-slate-400">
                             {{ display(state.row.designation?.name) }}
@@ -278,7 +304,7 @@ function initials(name) {
                             <input ref="docFileInputRef" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="block text-xs text-slate-300" @change="onDocFileChange">
                             <p v-if="docForm.files.length" class="mt-1 text-[11px] text-slate-500">{{ docForm.files.length }} selected</p>
                         </div>
-                        <button type="submit" :disabled="state.docUploading || !docForm.files.length" class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-40">Upload</button>
+                        <button type="submit" :disabled="state.docUploading || !docForm.files.length" class="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-500 disabled:opacity-40">Upload</button>
                     </form>
 
                     <div v-if="state.documentsLoading" class="text-xs text-slate-500">Loading files…</div>
@@ -302,7 +328,7 @@ function initials(name) {
                                 <td class="py-2 pr-2 font-mono">{{ d.size_bytes != null ? `${Math.round(d.size_bytes / 1024)} KB` : '—' }}</td>
                                 <td class="py-2 pr-2">{{ formatIso(d.created_at) }}</td>
                                 <td class="py-2 text-right">
-                                    <a :href="d.download_url" class="mr-2 text-emerald-400 hover:text-emerald-300">Download</a>
+                                    <a :href="d.download_url" class="mr-2 text-amber-400 hover:text-amber-300">Download</a>
                                     <button type="button" class="text-red-300 hover:text-red-200" @click="deleteDocument(d)">Delete</button>
                                 </td>
                             </tr>
@@ -323,7 +349,7 @@ function initials(name) {
                     </div>
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Employee code</dt>
-                        <dd class="mt-1 font-mono text-sm text-emerald-200/90">{{ display(state.row.employee_code) }}</dd>
+                        <dd class="mt-1 font-mono text-sm text-amber-200/90">{{ display(state.row.employee_code) }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500">Linked user ID</dt>

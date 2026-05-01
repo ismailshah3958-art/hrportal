@@ -91,11 +91,7 @@ class AttendanceController extends Controller
             ->get();
 
         if ($summaryRows->isEmpty()) {
-            return response()->json([
-                'month' => $month,
-                'best' => [],
-                'needs_attention' => [],
-            ]);
+            return response()->json($this->spotlightPlaceholderPayload($month));
         }
 
         $employeeIds = $summaryRows->pluck('employee_id')->all();
@@ -108,6 +104,10 @@ class AttendanceController extends Controller
         $rows = $summaryRows
             ->filter(fn ($r) => $employees->has((int) $r->employee_id))
             ->values();
+
+        if ($rows->isEmpty()) {
+            return response()->json($this->spotlightPlaceholderPayload($month));
+        }
 
         $best = $this->buildBestAttendance($rows, $employees);
         $needsAttention = $this->buildNeedsAttention($rows, $employees);
@@ -257,6 +257,86 @@ class AttendanceController extends Controller
         if (array_key_exists('check_in_at', $data) || array_key_exists('check_out_at', $data)) {
             $data['work_minutes'] = null;
         }
+    }
+
+    /**
+     * Sample rows when there is not enough attendance in the month (UI demo / empty DB).
+     * Negative employee_id values are not real records.
+     *
+     * @return array{month: string, best: list<array<string, mixed>>, needs_attention: list<array<string, mixed>>}
+     */
+    private function spotlightPlaceholderPayload(string $month): array
+    {
+        return [
+            'month' => $month,
+            'best' => [
+                [
+                    'employee_id' => -1,
+                    'employee_code' => 'EMP-101',
+                    'full_name' => 'Hassan Ali',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 22,
+                    'late_days' => 0,
+                    'leave_days' => 0,
+                ],
+                [
+                    'employee_id' => -2,
+                    'employee_code' => 'EMP-102',
+                    'full_name' => 'Muhammad Ismail',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 21,
+                    'late_days' => 1,
+                    'leave_days' => 0,
+                ],
+                [
+                    'employee_id' => -3,
+                    'employee_code' => 'EMP-103',
+                    'full_name' => 'Ayesha Khan',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 21,
+                    'late_days' => 0,
+                    'leave_days' => 1,
+                ],
+                [
+                    'employee_id' => -4,
+                    'employee_code' => 'EMP-104',
+                    'full_name' => 'Bilal Ahmed',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 20,
+                    'late_days' => 2,
+                    'leave_days' => 0,
+                ],
+            ],
+            'needs_attention' => [
+                [
+                    'employee_id' => -11,
+                    'employee_code' => 'EMP-201',
+                    'full_name' => 'Omar Farooq',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 14,
+                    'late_days' => 6,
+                    'leave_days' => 2,
+                ],
+                [
+                    'employee_id' => -12,
+                    'employee_code' => 'EMP-202',
+                    'full_name' => 'Sana Malik',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 15,
+                    'late_days' => 5,
+                    'leave_days' => 3,
+                ],
+                [
+                    'employee_id' => -13,
+                    'employee_code' => 'EMP-203',
+                    'full_name' => 'Usman Tariq',
+                    'profile_photo_url' => null,
+                    'attendance_days' => 16,
+                    'late_days' => 4,
+                    'leave_days' => 2,
+                ],
+            ],
+        ];
     }
 
     private function buildBestAttendance(Collection $rows, Collection $employees): array

@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { computed, reactive, onMounted } from 'vue';
 
 const state = reactive({
@@ -95,7 +95,7 @@ const totals = computed(() => {
             </div>
             <div class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
                 <p class="text-xs uppercase tracking-wider text-slate-500">Net total</p>
-                <p class="mt-1 text-sm font-semibold text-emerald-200">{{ formatMoney(totals.net) }}</p>
+                <p class="mt-1 text-sm font-semibold text-amber-200">{{ formatMoney(totals.net) }}</p>
             </div>
         </div>
 
@@ -134,19 +134,19 @@ const totals = computed(() => {
                         <td class="px-4 py-3">
                             <span
                                 class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium capitalize"
-                                :class="row.payroll_run?.status === 'finalized' ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/25' : 'bg-white/10 text-slate-300 ring-1 ring-white/10'"
+                                :class="row.payroll_run?.status === 'finalized' ? 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/25' : 'bg-white/10 text-slate-300 ring-1 ring-white/10'"
                             >
                                 {{ row.payroll_run?.status || '—' }}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-right">{{ formatMoney(row.gross_amount) }}</td>
                         <td class="px-4 py-3 text-right text-amber-200">{{ formatMoney(row.total_deductions) }}</td>
-                        <td class="px-4 py-3 text-right text-emerald-200">{{ formatMoney(row.net_amount) }}</td>
+                        <td class="px-4 py-3 text-right text-amber-200">{{ formatMoney(row.net_amount) }}</td>
                         <td class="px-4 py-3 text-right">
                             <a
                                 v-if="row.payroll_run?.status === 'finalized'"
                                 :href="`/api/my/payslips/${row.id}/download`"
-                                class="inline-flex rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-200 hover:bg-emerald-500/20"
+                                class="inline-flex rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-200 hover:bg-amber-500/20"
                             >
                                 Download PDF
                             </a>

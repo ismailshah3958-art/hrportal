@@ -94,7 +94,7 @@ async function setStatus(row, status) {
             <h2 class="text-lg font-semibold text-white sm:text-xl">Recruitment positions</h2>
         </div>
 
-        <div v-if="state.message" class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{{ state.message }}</div>
+        <div v-if="state.message" class="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{{ state.message }}</div>
         <div v-if="state.error" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ state.error }}</div>
 
         <form class="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:grid-cols-2 xl:grid-cols-4" @submit.prevent="createPosition">
@@ -115,7 +115,7 @@ async function setStatus(row, status) {
             <input v-model="form.closing_date" type="date" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
             <input v-model="form.description" placeholder="Short description" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
             <div class="xl:col-span-4">
-                <button type="submit" :disabled="state.saving" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">Create position</button>
+                <button type="submit" :disabled="state.saving" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50">Create position</button>
             </div>
         </form>
 
@@ -148,16 +148,16 @@ async function setStatus(row, status) {
                         <td class="px-4 py-3 text-right">
                             <button
                                 type="button"
-                                class="inline-flex min-w-[9.5rem] flex-col items-end rounded-xl border border-emerald-500/35 bg-emerald-600/15 px-3 py-2 text-left shadow-sm shadow-emerald-900/20 hover:bg-emerald-600/25"
+                                class="inline-flex min-w-[9.5rem] flex-col items-end rounded-xl border border-amber-500/35 bg-amber-600/15 px-3 py-2 text-left shadow-sm shadow-amber-900/20 hover:bg-amber-600/25"
                                 @click="router.push(`/recruitment/${row.id}/applications`)"
                             >
-                                <span class="text-xs font-semibold text-emerald-100">Add / manage candidates</span>
+                                <span class="text-xs font-semibold text-amber-100">Add / manage candidates</span>
                                 <span class="mt-0.5 text-[10px] text-slate-400">{{ row.applications_count ?? 0 }} in list</span>
                             </button>
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex flex-col items-end gap-1">
-                                <button type="button" class="text-xs text-emerald-400 hover:text-emerald-300" @click="router.push(`/recruitment/${row.id}`)">View</button>
+                                <button type="button" class="text-xs text-amber-400 hover:text-amber-300" @click="router.push(`/recruitment/${row.id}`)">View</button>
                                 <button type="button" class="text-xs text-slate-400 hover:text-white" @click="router.push(`/recruitment/${row.id}/edit`)">Edit</button>
                             </div>
                         </td>
@@ -165,7 +165,7 @@ async function setStatus(row, status) {
                             <button
                                 v-if="row.status !== 'open'"
                                 type="button"
-                                class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-200 hover:bg-emerald-500/20"
+                                class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-200 hover:bg-amber-500/20"
                                 @click="setStatus(row, 'open')"
                             >
                                 Re-open

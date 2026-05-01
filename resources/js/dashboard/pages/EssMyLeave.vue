@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { reactive, ref, computed, onMounted, watch } from 'vue';
 
 const monthYm = ref(currentYm());
@@ -167,7 +167,7 @@ async function submit() {
         <div v-else-if="state.loading" class="text-sm text-slate-500">Loading…</div>
 
         <template v-else>
-            <div v-if="opts.message" class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+            <div v-if="opts.message" class="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
                 {{ opts.message }}
             </div>
 

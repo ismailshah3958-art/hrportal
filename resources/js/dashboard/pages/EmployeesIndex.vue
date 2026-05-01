@@ -83,8 +83,8 @@ function formatSalary(val) {
 
 function statusClass(status) {
     const map = {
-        active: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/25',
-        on_leave: 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-500/25',
+        active: 'bg-amber-500/25 text-amber-50 ring-1 ring-amber-400/50',
+        on_leave: 'bg-orange-500/20 text-orange-100 ring-1 ring-orange-400/40',
         resigned: 'bg-slate-500/20 text-slate-300 ring-1 ring-white/10',
         terminated: 'bg-red-500/15 text-red-200 ring-1 ring-red-500/25',
     };
@@ -101,7 +101,7 @@ function statusClass(status) {
             </div>
             <button
                 type="button"
-                class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-900/25 transition hover:bg-amber-500"
                 @click="router.push('/employees/create')"
             >
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -126,7 +126,7 @@ function statusClass(status) {
                     v-model="state.search"
                     type="search"
                     placeholder="Name, code, email, CNIC…"
-                    class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                     @input="onSearchInput"
                 >
             </div>
@@ -185,7 +185,7 @@ function statusClass(status) {
                                     <span v-else>{{ initials(row.full_name) }}</span>
                                 </div>
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-emerald-200/90">
+                            <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-amber-200/95">
                                 {{ row.employee_code }}
                             </td>
                             <td class="px-4 py-3 font-medium text-white">{{ row.full_name }}</td>
@@ -211,7 +211,7 @@ function statusClass(status) {
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-200 hover:bg-emerald-500/20"
+                                    class="rounded-lg border border-amber-500/45 bg-amber-500/20 px-2.5 py-1 text-xs font-medium text-amber-50 hover:bg-amber-500/30"
                                     @click="router.push(`/employees/${row.id}/edit`)"
                                 >
                                     Edit

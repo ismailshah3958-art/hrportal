@@ -164,11 +164,11 @@ function isSelectedItem(it) {
             </div>
             <div class="flex items-center gap-2">
                 <input v-model="state.runMonth" type="month" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
-                <button type="button" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500" @click="generateRun">Generate run</button>
+                <button type="button" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500" @click="generateRun">Generate run</button>
             </div>
         </div>
 
-        <div v-if="state.actionMessage" class="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{{ state.actionMessage }}</div>
+        <div v-if="state.actionMessage" class="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">{{ state.actionMessage }}</div>
         <div v-if="state.error" class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ state.error }}</div>
 
         <div v-if="state.summary" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -182,7 +182,7 @@ function isSelectedItem(it) {
             </div>
             <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                 <p class="text-xs uppercase tracking-wider text-slate-500">Net Pay</p>
-                <p class="mt-1 text-lg font-semibold text-emerald-200">{{ formatMoney(state.summary.net) }}</p>
+                <p class="mt-1 text-lg font-semibold text-amber-200">{{ formatMoney(state.summary.net) }}</p>
             </div>
             <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                 <p class="text-xs uppercase tracking-wider text-slate-500">Zero Salary Employees</p>
@@ -236,7 +236,7 @@ function isSelectedItem(it) {
                         <tbody class="divide-y divide-white/5 text-slate-300">
                             <tr v-if="state.loadingItems"><td colspan="5" class="px-4 py-8 text-center text-slate-500">Loading...</td></tr>
                             <tr v-else-if="!state.runItems.length"><td colspan="5" class="px-4 py-8 text-center text-slate-500">Select a run to see items.</td></tr>
-                            <tr v-for="it in state.runItems" :key="it.id" class="cursor-pointer" :class="isSelectedItem(it) ? 'bg-emerald-900/20' : 'hover:bg-white/[0.04]'" @click="selectItem(it)">
+                            <tr v-for="it in state.runItems" :key="it.id" class="cursor-pointer" :class="isSelectedItem(it) ? 'bg-amber-900/20' : 'hover:bg-white/[0.04]'" @click="selectItem(it)">
                                 <td class="px-4 py-3">
                                     <span class="font-medium text-white">{{ it.employee?.full_name ?? 'Employee' }}</span>
                                     <span class="ml-2 font-mono text-xs text-slate-500">{{ it.employee?.employee_code }}</span>
@@ -245,7 +245,7 @@ function isSelectedItem(it) {
                                 <td class="px-4 py-3 text-right">{{ formatMoney(it.gross_amount) }}</td>
                                 <td class="px-4 py-3 text-right">{{ formatMoney(it.total_allowances) }}</td>
                                 <td class="px-4 py-3 text-right text-amber-200">{{ formatMoney(it.total_deductions) }}</td>
-                                <td class="px-4 py-3 text-right text-emerald-200">{{ formatMoney(it.net_amount) }}</td>
+                                <td class="px-4 py-3 text-right text-amber-200">{{ formatMoney(it.net_amount) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -269,7 +269,7 @@ function isSelectedItem(it) {
                         <input v-model="itemForm.note" type="text" maxlength="1000" :disabled="state.selectedRun.status !== 'draft'" class="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
                     </div>
                     <div class="sm:col-span-2 flex gap-2">
-                        <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-40" :disabled="state.selectedRun.status !== 'draft' || state.savingItemId === itemForm.id">Save adjustment</button>
+                        <button type="submit" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-40" :disabled="state.selectedRun.status !== 'draft' || state.savingItemId === itemForm.id">Save adjustment</button>
                         <button type="button" class="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5" @click="clearItemForm">Clear</button>
                     </div>
                 </form>

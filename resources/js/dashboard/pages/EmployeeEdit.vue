@@ -266,7 +266,7 @@ async function submit() {
                         <input
                             v-model="form.employee_code"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="e.g. EMP-001"
                         >
                         <p v-if="fieldError('employee_code')" class="mt-1 text-xs text-red-300">{{ fieldError('employee_code') }}</p>
@@ -278,7 +278,7 @@ async function submit() {
                             type="number"
                             min="1"
                             step="1"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="e.g. same as on K50"
                         >
                         <p class="mt-1 text-xs text-slate-500">Must match the user ID on the attendance device for sync.</p>
@@ -289,7 +289,7 @@ async function submit() {
                         <input
                             v-model="form.full_name"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('full_name')" class="mt-1 text-xs text-red-300">{{ fieldError('full_name') }}</p>
                     </div>
@@ -322,7 +322,7 @@ async function submit() {
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
-                                    class="block w-full max-w-xs text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-emerald-500"
+                                    class="block w-full max-w-xs text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-amber-500"
                                     @change="onProfilePhotoChange"
                                 >
                                 <p class="mt-1 text-xs text-slate-500">Uploading a file replaces the current photo (max ~2 MB).</p>
@@ -336,7 +336,7 @@ async function submit() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Department</label>
                         <select
                             v-model="form.department_id"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="">— Select —</option>
                             <option v-for="d in opts.departments" :key="d.id" :value="String(d.id)">{{ d.name }}</option>
@@ -346,7 +346,7 @@ async function submit() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Designation</label>
                         <select
                             v-model="form.designation_id"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="">— Select —</option>
                             <option v-for="d in opts.designations" :key="d.id" :value="String(d.id)">{{ d.name }}</option>
@@ -356,7 +356,7 @@ async function submit() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Reporting manager</label>
                         <select
                             v-model="form.manager_id"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="">— None —</option>
                             <option v-for="m in opts.managers" :key="m.id" :value="String(m.id)">
@@ -369,7 +369,7 @@ async function submit() {
                         <input
                             v-model="form.joining_date"
                             type="date"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                     </div>
                     <div>
@@ -377,7 +377,7 @@ async function submit() {
                         <input
                             v-model="form.exit_date"
                             type="date"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('exit_date')" class="mt-1 text-xs text-red-300">{{ fieldError('exit_date') }}</p>
                     </div>
@@ -385,7 +385,7 @@ async function submit() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Employment type</label>
                         <select
                             v-model="form.employment_type"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="permanent">Permanent</option>
                             <option value="contract">Contract</option>
@@ -400,7 +400,7 @@ async function submit() {
                             type="number"
                             min="0"
                             step="0.01"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="e.g. 150000"
                         >
                         <p v-if="fieldError('salary')" class="mt-1 text-xs text-red-300">{{ fieldError('salary') }}</p>
@@ -410,7 +410,7 @@ async function submit() {
                         <select
                             v-model="form.status"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="active">Active</option>
                             <option value="on_leave">On leave</option>
@@ -431,7 +431,7 @@ async function submit() {
                             type="email"
                             required
                             autocomplete="email"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="company email"
                         >
                         <p v-if="fieldError('work_email')" class="mt-1 text-xs text-red-300">{{ fieldError('work_email') }}</p>
@@ -442,7 +442,7 @@ async function submit() {
                             v-model="form.personal_email"
                             type="email"
                             autocomplete="email"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="Gmail / Yahoo / Hotmail (optional)"
                         >
                         <p v-if="fieldError('personal_email')" class="mt-1 text-xs text-red-300">{{ fieldError('personal_email') }}</p>
@@ -452,7 +452,7 @@ async function submit() {
                         <input
                             v-model="form.cnic"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="e.g. 35202-1234567-1"
                         >
                         <p v-if="fieldError('cnic')" class="mt-1 text-xs text-red-300">{{ fieldError('cnic') }}</p>
@@ -463,7 +463,7 @@ async function submit() {
                             v-model="form.date_of_birth"
                             type="date"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('date_of_birth')" class="mt-1 text-xs text-red-300">{{ fieldError('date_of_birth') }}</p>
                     </div>
@@ -472,7 +472,7 @@ async function submit() {
                         <input
                             v-model="form.phone"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="Mobile"
                         >
                         <p v-if="fieldError('phone')" class="mt-1 text-xs text-red-300">{{ fieldError('phone') }}</p>
@@ -482,7 +482,7 @@ async function submit() {
                         <input
                             v-model="form.whatsapp_phone"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="Same or different number"
                         >
                         <p v-if="fieldError('whatsapp_phone')" class="mt-1 text-xs text-red-300">{{ fieldError('whatsapp_phone') }}</p>
@@ -491,7 +491,7 @@ async function submit() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Gender</label>
                         <select
                             v-model="form.gender"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="">—</option>
                             <option value="male">Male</option>
@@ -510,7 +510,7 @@ async function submit() {
                         <input
                             v-model="form.address_line1"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('address_line1')" class="mt-1 text-xs text-red-300">{{ fieldError('address_line1') }}</p>
                     </div>
@@ -518,14 +518,14 @@ async function submit() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">City</label>
                         <input
                             v-model="form.city"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Country</label>
                         <input
                             v-model="form.country"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                     </div>
                     <div>
@@ -533,7 +533,7 @@ async function submit() {
                         <input
                             v-model="form.emergency_contact_phone"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('emergency_contact_phone')" class="mt-1 text-xs text-red-300">{{ fieldError('emergency_contact_phone') }}</p>
                     </div>
@@ -542,7 +542,7 @@ async function submit() {
                         <input
                             v-model="form.emergency_contact_name"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('emergency_contact_name')" class="mt-1 text-xs text-red-300">{{ fieldError('emergency_contact_name') }}</p>
                     </div>
@@ -551,7 +551,7 @@ async function submit() {
                         <input
                             v-model="form.emergency_contact_relation"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="e.g. Father, spouse"
                         >
                         <p v-if="fieldError('emergency_contact_relation')" class="mt-1 text-xs text-red-300">{{ fieldError('emergency_contact_relation') }}</p>
@@ -561,7 +561,7 @@ async function submit() {
                         <textarea
                             v-model="form.notes"
                             rows="3"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         />
                     </div>
                 </div>
@@ -575,7 +575,7 @@ async function submit() {
                         <input
                             v-model="form.bank_name"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('bank_name')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_name') }}</p>
                     </div>
@@ -584,7 +584,7 @@ async function submit() {
                         <input
                             v-model="form.bank_branch"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('bank_branch')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_branch') }}</p>
                     </div>
@@ -593,7 +593,7 @@ async function submit() {
                         <input
                             v-model="form.bank_account_title"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('bank_account_title')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_account_title') }}</p>
                     </div>
@@ -602,7 +602,7 @@ async function submit() {
                         <input
                             v-model="form.bank_account_number"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('bank_account_number')" class="mt-1 text-xs text-red-300">{{ fieldError('bank_account_number') }}</p>
                     </div>
@@ -611,7 +611,7 @@ async function submit() {
                         <input
                             v-model="form.bank_iban"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-mono text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-mono text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             placeholder="PK…"
                             autocapitalize="characters"
                         >
@@ -630,7 +630,7 @@ async function submit() {
                 </button>
                 <button
                     type="submit"
-                    class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 hover:bg-emerald-500 disabled:opacity-50"
+                    class="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-900/30 hover:bg-amber-500 disabled:opacity-50"
                     :disabled="opts.saving"
                 >
                     {{ opts.saving ? 'Saving…' : 'Update employee' }}

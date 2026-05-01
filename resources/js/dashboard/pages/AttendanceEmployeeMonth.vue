@@ -209,7 +209,7 @@ function formatTime(iso) {
 
 function statusClass(status) {
     const map = {
-        present: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/25',
+        present: 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/25',
         remote: 'bg-sky-500/15 text-sky-200 ring-1 ring-sky-500/25',
         half_day: 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-500/25',
         absent: 'bg-red-500/15 text-red-200 ring-1 ring-red-500/25',
@@ -413,7 +413,7 @@ async function saveLeaveRequest() {
                     {{ essSelf ? 'My attendance' : 'Monthly attendance' }}
                 </h2>
                 <p v-if="state.employee" class="mt-1 text-sm text-slate-400">
-                    <span class="font-mono text-emerald-200/90">{{ state.employee.employee_code }}</span>
+                    <span class="font-mono text-amber-200/90">{{ state.employee.employee_code }}</span>
                     ·
                     <span class="font-medium text-white">{{ state.employee.full_name }}</span>
                 </p>
@@ -438,7 +438,7 @@ async function saveLeaveRequest() {
                 <input
                     v-model="monthYm"
                     type="month"
-                    class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                 >
                 <button
                     type="button"
@@ -537,7 +537,7 @@ async function saveLeaveRequest() {
                                     <td v-if="showHrActions" class="whitespace-nowrap px-4 py-2.5 text-right">
                                         <button
                                             type="button"
-                                            class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-200 hover:bg-emerald-500/20"
+                                            class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-medium text-amber-200 hover:bg-amber-500/20"
                                             @click="openCreate(cell.date)"
                                         >
                                             Add
@@ -591,7 +591,7 @@ async function saveLeaveRequest() {
                             type="date"
                             required
                             :disabled="modal.mode === 'edit'"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white disabled:opacity-60 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white disabled:opacity-60 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('attendance_date')" class="mt-1 text-xs text-red-300">{{ fieldError('attendance_date') }}</p>
                     </div>
@@ -600,7 +600,7 @@ async function saveLeaveRequest() {
                         <input
                             v-model="modal.form.check_in_at"
                             type="datetime-local"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('check_in_at')" class="mt-1 text-xs text-red-300">{{ fieldError('check_in_at') }}</p>
                     </div>
@@ -609,7 +609,7 @@ async function saveLeaveRequest() {
                         <input
                             v-model="modal.form.check_out_at"
                             type="datetime-local"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                         <p v-if="fieldError('check_out_at')" class="mt-1 text-xs text-red-300">{{ fieldError('check_out_at') }}</p>
                     </div>
@@ -620,7 +620,7 @@ async function saveLeaveRequest() {
                                 v-model.number="modal.form.late_minutes"
                                 type="number"
                                 min="0"
-                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             >
                         </div>
                         <div>
@@ -629,7 +629,7 @@ async function saveLeaveRequest() {
                                 v-model.number="modal.form.early_leave_minutes"
                                 type="number"
                                 min="0"
-                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                             >
                         </div>
                     </div>
@@ -638,7 +638,7 @@ async function saveLeaveRequest() {
                         <select
                             v-model="modal.form.status"
                             required
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="present">Present</option>
                             <option value="absent">Absent</option>
@@ -653,7 +653,7 @@ async function saveLeaveRequest() {
                         <label class="mb-1.5 block text-sm font-medium text-slate-300">Source</label>
                         <select
                             v-model="modal.form.source"
-                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-slate-800/90 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         >
                             <option value="manual">Manual</option>
                             <option value="biometric">Biometric</option>
@@ -666,7 +666,7 @@ async function saveLeaveRequest() {
                         <textarea
                             v-model="modal.form.notes"
                             rows="2"
-                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                         />
                     </div>
                     <div class="flex justify-end gap-2 border-t border-white/10 pt-4">
@@ -679,7 +679,7 @@ async function saveLeaveRequest() {
                         </button>
                         <button
                             type="submit"
-                            class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                            class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50"
                             :disabled="modal.saving"
                         >
                             {{ modal.saving ? 'Saving…' : 'Save' }}

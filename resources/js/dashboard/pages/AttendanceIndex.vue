@@ -111,7 +111,7 @@ function initials(name) {
                     v-model="state.search"
                     type="search"
                     placeholder="Name, code, email…"
-                    class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-amber-500/40 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                     @input="onSearchInput"
                 >
             </div>
@@ -189,7 +189,7 @@ function initials(name) {
                                     <span v-else>{{ initials(row.full_name) }}</span>
                                 </div>
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-emerald-200/90">
+                            <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-amber-200/90">
                                 {{ row.employee_code }}
                             </td>
                             <td class="px-4 py-3 font-medium text-white">{{ row.full_name }}</td>
@@ -197,7 +197,7 @@ function initials(name) {
                             <td class="px-4 py-3 text-right">
                                 <button
                                     type="button"
-                                    class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-200 hover:bg-emerald-500/20"
+                                    class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-200 hover:bg-amber-500/20"
                                     @click.stop="router.push(`/attendance/${row.id}`)"
                                 >
                                     Monthly record

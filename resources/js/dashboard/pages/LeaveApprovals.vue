@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { reactive, onMounted } from 'vue';
 
 const state = reactive({
@@ -94,7 +94,7 @@ async function reject(row) {
                             <td class="px-4 py-3">{{ row.total_days }}</td>
                             <td class="max-w-xs truncate px-4 py-3 text-slate-400">{{ row.reason || '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 text-right">
-                                <button type="button" class="mr-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-40" :disabled="state.actingId === row.id" @click="approve(row)">Approve</button>
+                                <button type="button" class="mr-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-200 hover:bg-amber-500/20 disabled:opacity-40" :disabled="state.actingId === row.id" @click="approve(row)">Approve</button>
                                 <button type="button" class="rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-200 hover:bg-red-500/20 disabled:opacity-40" :disabled="state.actingId === row.id" @click="reject(row)">Reject</button>
                             </td>
                         </tr>
